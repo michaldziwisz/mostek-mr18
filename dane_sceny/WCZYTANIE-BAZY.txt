@@ -1,0 +1,119 @@
+﻿BAZA dla MR18: kopia ustawień, wczytanie i powrót
+
+Najpierw własna kopia
+
+BAZA przeszła pełne wczytanie i końcową weryfikację w prawdziwym AOSC 2.2r1b82 połączonym z symulatorem. Wszystkie 693 węzły i 2900 wartości dotarły bez rozbieżności; zapis Save Scene as dał plik identyczny bajtowo. Symulator odtwarza 693 wiersze Factory Reset dokładnie, ale nie jest prawdziwym MR18. Format Combinatorów oparto dodatkowo na kodzie Maillota dla X32, nie na pomiarze MR18. Scena nadal wymaga pierwszego odbioru na sprzęcie poza anteną, za zgodą opiekuna stanowiska i przy zabezpieczonym torze. Nie wczytuj BAZY podczas emisji. Dla samodzielnej pracy z NVDA zalecamy AOSC z Air Access 18; dostępności M-AIR Edit nie zmierzono.
+
+1. Zakończ emisję i zatrzymaj wysyłanie dźwięku przez RadioCastera. Zatrzymaj odtwarzanie i rozłącz rozmowy testowe. Zamknij mostek na czas operacji scenowych. NVDA zostaw uruchomione.
+2. Ścisz sprzętowy odsłuch i odłącz głośniki oraz zewnętrzny tor nadawczy. Samo Mute Main LR nie zabezpiecza próby, bo wczytywana scena może je zdjąć. Odłącz AUX 1 od BlueDrivera na czas ładowania, żeby nie wysłać niekontrolowanego dźwięku rozmówcy.
+3. Nie zmieniaj jeszcze kanałów. Zapisz własny stan jedną z dwóch metod poniżej. Nie nadpisuj istniejącej sceny ani snapshotu. W nowym folderze w Dokumentach użyj nazwy MOJA-SCENA-PRZED-BAZA.scn. Jeżeli folder już istnieje, utwórz następny wolny folder.
+4. Osobno zanotuj zastaną częstotliwość zegara, tryb USB, aktywne solo, zakres recall, ewentualne Channel safes i okablowanie. Plik sceny nie przechowuje całego otoczenia stanowiska.
+
+Kopia w AOSC, Air Access 18
+
+Nazwy okien, polecenia menu X oraz zapis i wczytanie sprawdzono w prawdziwym AOSC 2.2r1b82, z modelem miksera na adresie lokalnym. Skróty odczytano z działającego menu. Sterowanie pomiarowe używało UI Automation i komunikatów Windows, nie NVDA; nie jest to pełny odbiór obsługi czytnikiem. Źródła: S2 i S3.
+
+1. Przejdź do działającego AOSC skonfigurowanego dla właściwego miksera. Sprawdź odczyt stanu połączenia. Nie zapisuj kopii, gdy aplikacja nie odbiera parametrów.
+2. Naciśnij Ctrl+Shift+S. To polecenie Save Scene as, czyli zapis całej sceny, nie preset pojedynczej strony. Powinno pojawić się okno Save current Scene as.
+3. W oknie zapisu wybierz swój nowy folder w Dokumentach i wpisz MOJA-SCENA-PRZED-BAZA.scn. Klawiszem Tab przejdź do przycisku zapisu i zatwierdź Enterem. Jeżeli pojawi się pytanie o zastąpienie pliku, anuluj i wybierz wolne miejsce.
+4. Poczekaj na zakończenie pobierania parametrów. Komunikat błędu oznacza, że kopia nie jest potwierdzona. Nie przechodź wtedy do BAZY.
+5. W Eksploratorze sprawdź, że plik istnieje i ma niezerowy rozmiar. Pełna scena MR18 ma 693 węzły parametrów. Sam rozmiar pliku nie dowodzi poprawności odtworzenia, ale pusty lub urwany plik nie jest kopią. Zachowaj drugą kopię pliku poza folderem roboczym.
+
+Jeżeli skrót nie otworzy właściwego okna, naciśnij Alt+X i odszukaj polecenie Save Scene as. Polecenie Upload Scene też znajduje się w menu X. Nie wybieraj Save preset as. Nie podajemy niezmierzonej liczby naciśnięć Tab ani zmyślonego skrótu menu.
+
+Kopia w M-AIR Edit
+
+Procedura opiera się na instrukcji MR18, rozdział 7.11, oraz instrukcji obsługi X-AIR Edit S4. Nazwy poleceń Save Scene i Load Scene należy potwierdzić w posiadanym M-AIR Edit. Jeżeli NVDA ich nie udostępnia, użyj AOSC, zamiast działać na nieopisanych przyciskach.
+
+1. Otwórz M-AIR Edit. Przy łączeniu wybierz Mixer → PC, czyli odczyt miksera do komputera. Nie wybieraj PC → Mixer przed wykonaniem kopii.
+2. Po synchronizacji wybierz Save, następnie Save Scene, jeśli program pokazuje wybór rodzaju zapisu. Chodzi o plik całej sceny na dysku, nie preset kanału i nie nadpisanie miejsca w pamięci miksera.
+3. W oknie zapisu wybierz nowy folder w Dokumentach i nazwę MOJA-SCENA-PRZED-BAZA.scn. Zapisz bez zastępowania istniejącego pliku. Poczekaj na zakończenie i sprawdź plik w Eksploratorze.
+4. Jeżeli dodatkowo robisz kopię w mikserze, na stronie Snapshots wybierz wyłącznie wolne miejsce. Nie używaj numeru 64, jeżeli ze stanowiskiem pracuje Mixing Station. Kopia na dysku pozostaje podstawowym zabezpieczeniem.
+
+Wczytanie BAZY w AOSC
+
+1. Upewnij się, że własna kopia jest zapisana, emisja zatrzymana, mostek zamknięty, a wyjścia i odsłuch zabezpieczone. Wymagana jest wersja AOSC z poprawkami wczytywania scen na MR18. Wątek autora S3 opisuje starszy błąd weryfikacji gate i jego poprawkę.
+2. Naciśnij Ctrl+Shift+U. To Upload Scene. W oknie Upload Scene from wybierz BAZA.scn i zatwierdź przyciskiem otwarcia. Nie wybieraj BAZA-naglowek-2.1.scn w tej pierwszej próbie.
+3. Poczekaj do końca przesyłania i etapu Verifying scene. Nie przerywaj programu i nie ruszaj X-TOUCH. Każdy błąd Verification failed oznacza niepełne potwierdzenie, nawet gdy część suwaków wygląda poprawnie. Pozostań poza emisją i przywróć własną kopię.
+4. Po udanym wczytaniu naciśnij Ctrl+Alt+Shift+F3, czyli Clear all solo z Air Access 18. To konieczny krok osobny: plik BAZA.scn nie zeruje aktywnych solo.
+5. Sprawdź częstotliwość 48 kHz i tryb USB 18x18. W AOSC: Shift+F10 otwiera Setup, potem w drzewie wybierz Preferences. System Clock Rate ma być 48Khz, USB Interface Mode ma być 18x18. Zmiany zegara wykonuj tylko przy zabezpieczonych wyjściach, bo mogą powodować trzask. Wczytanie BAZY nie ustawia tych dwóch preferencji.
+6. W AOSC wyłącz tracking w menu OSC na czas pracy mostka. Zapobiega to skakaniu fokusu i dublowaniu komunikatów. Nie włączaj żadnej funkcji Factory Reset.
+
+Plik x.sct z Air Access 18 określa zakres zapisu scen AOSC. Do pełnej własnej kopii używaj oryginalnego, pełnego x.sct, a nie wariantu brzmieniowego bez mix. W BAZA.scn jest komplet 693 węzłów. AOSC wysyła parametry z pliku i je weryfikuje. Nie ustalono, żeby stosował filtr Channel safes z M-AIR; nie zakładaj takiej ochrony. Źródła: S2, S3.
+
+Wczytanie BAZY w M-AIR Edit
+
+1. Po wykonaniu kopii i zabezpieczeniu stanowiska wybierz Load, następnie Load Scene. Wybierz BAZA.scn z dysku, nie numer snapshotu.
+2. Jeżeli pojawi się wybór zakresu ładowania, wybierz wszystkie kanały, busy, parametry i ustawienia globalne. Uwzględnij Source, Input z gain i phantom, Config, EQ, Dyn, Fdr/Pan, Mute, wszystkie wysyłki, routing i FX. Bez pełnego zakresu mogą zostać trasy z poprzedniej konfiguracji.
+3. Jeżeli aplikacja ma Channel safes, na czas tej pełnej próby żaden kanał ani bus nie może być chroniony przed odtworzeniem. Najpierw zachowaj informację o wcześniejszym ustawieniu. Instrukcja MR18 potwierdza Channel safes w aplikacji Android, nie dowodzi identycznego okna w M-AIR Edit dla Windows.
+4. Nie myl filtrów recall snapshotu z ładowaniem pliku sceny. Jeżeli używasz wewnętrznego snapshotu po późniejszym zapisaniu BAZY, wybierz All w każdej z trzech kategorii: Channel, Parameter i Global. Do pierwszego testu używamy jednak pliku, nie zapisujemy BAZY na istniejącym snapshocie.
+5. Jeżeli program odrzuci BAZA.scn wyłącznie ze względu na format, zapisz treść błędu. Dodatkowy BAZA-naglowek-2.1.scn ma identyczne parametry i jeden historyczny nagłówek #2.1#. Jego konieczność ani zgodność z bieżącym M-AIR Edit nie są potwierdzone. Nie ponawiaj w ciemno częściowo udanego ładowania. Najpierw wróć do własnej kopii przy zabezpieczonych wyjściach.
+6. Po udanym ładowaniu wyczyść wszystkie solo, sprawdź 48 kHz i USB 18x18. Można zrobić to dostępnym AOSC według poprzedniej sekcji. Dopiero potem otwórz mostek i wykonaj pełny odczyt.
+
+Samo zamknięcie okna ładowania nie jest odbiorem sceny. Potrzebne są odczyty i ciche próby wymienione dalej. Nie zmierzono tu M-AIR Edit, jego kolejności fokusu, zakresu ładowania ani kompatybilności nagłówka. Źródła: S1, S4, S5.
+
+Co i gdzie podłączyć
+
+Tabela dotyczy stanowiska, dla którego powstała scena. Przy pierwszym uruchomieniu podłączaj wyjścia dopiero po sprawdzeniu sceny, na niskich poziomach. Gniazdo wejściowe nie jest tym samym co numer suwaka X-TOUCH.
+
+Tabela połączeń. Każdy wiersz: gniazdo, potem przeznaczenie.
+
+Wejście analogowe 9, XLR: Mikrofon prezentera: Shure SM7B przez Cloudlifter. Gain +32 dB. Phantom 48 V włączony (zasila Cloudliftera).
+Wejście analogowe 10, XLR: Męski XLR BlueDrivera-M3, czyli dźwięk od słuchacza. Gain +49,5 dB. Phantom zawsze wyłączony dla tego urządzenia.
+Wejścia analogowe 1 do 8: W tej scenie nieużywane. Kanały DSP 1 do 8 odbierają USB, nie te gniazda.
+Wejścia analogowe 11 do 16 oraz liniowe 17/18: Rezerwa, nie podłączamy źródeł emisyjnych. Tory zamknięte.
+USB typu B w MR18: Komputer Windows. Odtwarzanie OUT 1-2: muzyka 1; OUT 3-4: muzyka 2; OUT 5-6: muzyka 3; OUT 7-8: głośnik Zooma.
+AUX OUT 1: Bus 1, powrót N-1 do wejścia mini-jack 3,5 mm BlueDrivera-M3. Użyj jednej gałęzi posiadanego kabla, druga zostaje wolna. Nie zwieraj dwóch wyjść.
+AUX OUT 2: Bus 2, sam telefon przed suwakiem. Do prawej gałęzi kabla i osobnego wejścia miksera liniowego, panorama w prawo. Właściwą gałąź sprawdź cichym sygnałem.
+AUX OUT 3 i 4: Niepodłączone. Powrót N-1 Zooma idzie wyłącznie po USB. W pliku te gniazda mają ciche źródło Send3, nie Bus 3/4.
+AUX OUT 5: Niepodłączone. Bus 5 jest wyłącznie kluczem przyciszania, nie wyjściem audio. Gniazdo przekierowane na cichy Send3.
+AUX OUT 6: Bus 6, głośniki mono. Dwa głośniki wymagają właściwego rozdzielenia jednego sygnału mono. Przy pierwszej próbie zostaw odłączone.
+PHONES: Wejście stereo osobnego miksera liniowego. To monitor MR18. Słuchawki podłącz do miksera liniowego; tam też dochodzi syntezator NVDA i karta nieemisyjna.
+MAIN L i R: Program stereo. Na czas próby niepodłączone. Nie prowadź ich do alternatywnego nadajnika.
+ULTRANET: Niepodłączony. W BAZIE niesie tylko kopie PGM, nie suche mikrofony. To nie gniazdo Ethernet.
+ETHERNET: Przewodowa sieć sterowania mikserem. Nie przenosi audio. Nie zmieniaj ustawień istniejącej sieci w ramach wczytywania sceny.
+USB kontrolera X-TOUCH: Do komputera, tryb MC według instrukcji mostka. Nie do portu USB miksera.
+
+Urządzenia dźwiękowe i stan początkowy
+
+1. Zoom: mikrofon IN 1-2 MR18, czyli Bus 3/4; głośnik OUT 7-8. RadioCaster: wejście IN 3-4, czyli Main L/R. Nie używaj suchego wejścia mikrofonowego, loopbacku ani nasłuchu systemowego.
+2. USB do komputera 5 do 18 również niesie kopie Main L/R. W Windows wyłącz zbiorcze IN 1-8 i OUT 1-8. Domyślnym urządzeniem systemu i komunikacji pozostaje karta nieemisyjna, nigdy MR18.
+3. W BAZIE gra tylko muzyka 1, kanały 1/2. Muzyki 2 i 3 mają Main On włączone, ale suwaki na dole. Telefon i Zoom czekają: Main On włączone, suwaki na dole. Mikrofon ma suwak na 0 dB, ale Main On wyłączone.
+4. Słuchacz i Zoom dostają muzykę za suwakiem. Telefon czekający trafia też przez AUX 2 do prawego ucha. Bus 5 ma master 0 dB, nie ma linku 5/6 ani drogi do Main LR lub USB.
+5. Startowe mastery: Bus 1 minus 23 dB, Bus 2 i Bus 6 minus 30 dB, Bus 3/4 oraz Bus 5 zero dB. Poziom PHONES minus 10 dB. To ostrożny start, nie gwarancja bezpiecznej głośności konkretnego wzmacniacza.
+6. Phantom 48 V jest włączony wyłącznie na wejściu 9, dla Shure SM7B przez Cloudlifter. Zapisane +32 dB pasuje do SM7B z Cloudlifterem przy mowie z bliska. Przy innym mikrofonie ustaw gain na słuch, zaczynając od niskiego poziomu, a dla mikrofonu dynamicznego bez Cloudliftera phantom nie jest potrzebny. Przed podłączeniem mikrofonu wstęgowego do wejścia 9 sprawdź wymagania producenta. Nie używaj tam niesymetrycznych przejściówek ani uszkodzonego kabla. Zbalansowany mikrofon dynamiczny na poprawnym kablu XLR znosi 48 V. Wszystkie pozostałe wejścia mają phantom wyłączony. Na wejściu 10, do którego podłączony jest BlueDriver-M3, nigdy nie włączaj phantom.
+7. FX1 to Dual Combinator: część A mikrofon, część B telefon. FX2 to Stereo Combinator Zooma. FX3 to limiter na sumie Main LR, FX4 limiter na powrocie Zooma (Bus 3/4). Mikrofon ma ustawienie pod SM7B: filtr dolnozaporowy 79 Hz, korektor (+9 dB przy 65 Hz, −6 dB przy 202 Hz, −3,75 dB przy 590 Hz, półka +15 dB od 8,15 kHz), ekspander i kompresor. Muzyka z USB ma trim −1 dB. Przy innym mikrofonie te nastawy trzeba dostroić na słuch.
+
+Pierwsza kontrola, zanim puścimy dźwięk
+
+1. Odczytaj phantom, źródła kanałów, Main On i suwaki. Sprawdź, że głosy nie mają nieplanowanej drogi na antenę. Upewnij się, że żaden inny kanał nie pobiera mikrofonu 9.
+2. Odczytaj wszystkie pary USB, przypisania AUX, linki oraz inserty. Potwierdź obecność Combinatora dual i stereo w posiadanym firmware. Sprawdź obie połówki Zooma oddzielnym sygnałem L i R. Symulator nie dowodzi zachowania połączonych szyn ani insertu stereo.
+3. Uruchom mostek i odczytaj status. Oczekiwany stan to: mikrofon wyłączony, słuchacz czeka, Zoom czeka, głośniki włączone. Ostrzeżenie o profilu, nieznanym stanie albo ochronne zamknięcie oznacza przerwanie odbioru i sprawdzenie trasy. Mostek nie ustawia za nas całego profilu.
+4. Przy głośnikach nadal odłączonych sprawdź F1, CUE telefonu, podniesienie jego suwaka i F3. Suwak kończy CUE i wpuszcza rozmówcę na antenę. F3 zwalnia CUE; jeśli CUE już nie ma, nie służy do zdejmowania rozmówcy z anteny.
+5. Dopiero po kontroli podłączaj odsłuch i BlueDrivera na niskich poziomach. Sprawdź brak własnego powrotu telefonu i Zooma, prawe ucho telefonu, działanie PFL i przyciszenia programu, wyciszanie Bus 6 przed mikrofonem oraz ciszę prywatnych rozmów w lokalnym nagraniu RadioCastera. Dopiero taki pomiar pozwala ocenić prywatność całego toru.
+6. Jeśli próba jest udana, zapisz dostrojoną własną BAZĘ w nowym pliku i zrób jej kopię. Nie nadpisuj MOJA-SCENA-PRZED-BAZA.scn.
+
+Powrót do własnej sceny
+
+1. Zatrzymaj emisję i mostek, zabezpiecz fizyczne wyjścia tak jak przed wczytaniem. Własna scena może przywrócić wyższe gain, poziomy i phantom.
+2. W AOSC naciśnij Ctrl+Shift+U i wybierz zachowany plik MOJA-SCENA-PRZED-BAZA.scn. W M-AIR Edit wybierz Load, następnie Load Scene i ten sam plik. Użyj aplikacji, która zapisała kopię, żeby nie dokładać niepotwierdzonej konwersji formatu.
+3. Wczytaj pełny zakres. W AOSC poczekaj do końca weryfikacji bez błędu. W M-AIR Edit dodatkowo odczytaj routing, gain, phantom i poziomy. Nie zapisuj BAZY na miejsce własnej sceny.
+4. Przywróć osobno wcześniej zanotowane ustawienia zegara, trybu USB, ochrony recall i kabli. Sprawdź solo i odsłuch. Nie przywracaj wyższej głośności przed kontrolą.
+5. Jeżeli wracasz do swojej poprzedniej konfiguracji, nie uruchamiaj mostka radiowego na niezgodnym profilu. Wczytanie prywatnej kopii nie oznacza, że pasuje ona do mostka.
+
+Czy BAZA rusza moje sceny?
+
+Wczytanie pliku BAZA zmienia stan bieżący miksera. Nie kasuje i nie nadpisuje zapisanych scen na dysku ani snapshotów w pamięci miksera. Nadpisanie nastąpiłoby dopiero po osobnym zapisie na ich miejsce. BAZA nie zawiera poleceń zapisu, kasowania ani inicjalizacji snapshotów. Nie wybieraj Factory Reset ani Initialize. Snapshot 64 pozostaw wolny dla ochrony Mixing Station, jeżeli z niej korzystasz. Źródła: S1 i S2.
+
+Ta scena nie jest pełnym resetem urządzenia. Nie zawiera aktywnych solo, numeru ostatniego snapshotu, zegara, trybu USB ani preferencji sieci i programów. Dlatego kontrola po wczytaniu i zachowanie własnej kopii są konieczne.
+
+Źródła i granice instrukcji
+
+1. S1. Oficjalny MR18/MR12 User Manual V1.0: rozdziały 6.11 i 6.12, strona 22, oraz 7.11 i 7.12, strony 27 i 28. Opis Channel safes dotyczy rozdziału aplikacji Android.
+2. S2. Air Access 18: Factory Reset.scn, x.sct, scn.xnd, azaosc.xml oraz Keyboard Shortcuts.txt. Skrót Clear all solo: wiersz 25 pliku skrótów. Save Scene as i Upload Scene oraz Ctrl+Shift+S/U: odczyt menu X działającego AOSC, potwierdzony także napisami oryginalnego azaosc.exe.
+3. S3. Autor AOSC i wątek Air Access 18, w tym poprawki MR18 i opis końcowej weryfikacji: https://www.azslow.com/index.php/topic,594.0.html oraz https://www.azslow.com/index.php/topic,595.15.html .
+4. S4. Robert Mark Audio, instrukcja X-AIR Edit dla PC, źródło pośrednie dla M-AIR Edit: https://www.robertmarkaudio.com/wp-content/uploads/2023/03/Behringer-mixer-FOR-PC.pdf . Potwierdza Mixer → PC oraz Load, Load Scene. Dokładna dostępność i etykiety użytej wersji M-AIR Edit pozostają do sprawdzenia.
+5. S5. XAirGetScene.c, wiersze 126 do 135, oraz XAirSetScene.c, wiersze 134 do 144: https://github.com/pmaillot/X32-Behringer . Historyczny nagłówek #2.1# jest obsługiwany przez te narzędzia. Nie dowodzi to wymogu najnowszego M-AIR Edit.
+6. S6. Projekt stanowiska, wersja 22 (nieopublikowany dokument roboczy).
+
+Nie wykonywano testu prawdziwego miksera, M-AIR Edit ani odczytu NVDA. Wykonano test rzeczywistego AOSC z modelem OSC. Import, zapis i ponowny import przeszły bez błędu. Pozostają do sprawdzenia na MR18: dokładne odpowiedzi FX1/FX2, pełny recall, połączone szyny i inserty, routing audio, gain, kompresja, odsłuch i prywatność rozmów. Kontrola negatywna zepsutej linii /ch/10/dyn dała błąd weryfikacji po przesłaniu 692 pozostałych węzłów. Dlatego żadnego błędu weryfikacji nie wolno traktować jako informacji, że mikser pozostał nietknięty. Nie podajemy gwarancji atomowego ładowania ani braku przecieków audio.

@@ -1,0 +1,31 @@
+{
+  "nazwa": "MR18 + X-TOUCH MC v1",
+  "wersja_schematu": 1,
+  "mikser": "MR18, protokół X AIR (inne modele wymagają kwalifikacji)",
+  "wejscia": 16,
+  "szyny": 6,
+  "usb": 18,
+  "kontroler": "X-TOUCH MC",
+  "paski": 8,
+  "master": "monitor/słuchawki",
+  "mikrofony_lokalne": 1,
+  "rozmowcy": [
+    "telefon",
+    "zoom"
+  ],
+  "przyciszani_sluchacze": 1,
+  "playout": [
+    "sara",
+    "stationplaylist",
+    "auto",
+    "brak"
+  ],
+  "playout_bez_programu": "wyłącznie --emisja brak, nie emisja.program w JSON",
+  "usb_stale": {
+    "1": "N-1 Zoom, lewy",
+    "2": "N-1 Zoom, prawy",
+    "3": "antena Main L",
+    "4": "antena Main R"
+  },
+  "usb_pozostale": "projekt BAZA: kopia Main L/R POST; dopuszczalny suchy głos tylko według profil.usb_suche_dozwolone"
+}

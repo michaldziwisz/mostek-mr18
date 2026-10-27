@@ -1,0 +1,28 @@
+[
+  ["h1", "MR18 i X-TOUCH. Prosty start"],
+  ["p", "Mostek łączy przyciski i suwaki pełnego X-TOUCH z radiowym układem MR18. Ten test sprawdza sterowanie i komunikaty, nie jakość dźwięku ani gotowość do emisji."],
+  ["h2", "Przed startem"],
+  ["p", "Rozpakuj cały ZIP do własnego katalogu w Windows 10 lub 11, 64 bit. Python nie jest potrzebny. Włącz NVDA, połącz komputer i MR18 z tą samą siecią, a X-TOUCH podłącz przez USB. Zamknij inne programy sterujące mikserem i MIDI."],
+  ["p", "X-TOUCH ustaw na MC i USB: wyłącz kontroler, przytrzymaj SELECT paska 1 i włącz zasilanie. Pierwszą gałką wybierz MC, drugą USB. Tryby Xctl i Xctl/MC nie działają z mostkiem: stół steruje wtedy mikserem sam i nie wysyła nic przez USB. Ponownie naciśnij SELECT paska 1, aby zapisać. Menu kontrolera nie jest odczytywane przez NVDA; przy pierwszym ustawieniu może być potrzebna pomoc w odczytaniu ekranu."],
+  ["p", "Odłącz lub ścisz głośniki i wyjścia. Nie testuj podczas emisji. Scena BAZA zmienia routing i włącza phantom 48 V na wejściu 9, więc sprawdź zgodność podłączonego tam urządzenia i kabla. Mikrofon jest na wejściu 9, telefon na 10, Zoom na 7 i 8. Źródła w innych gniazdach mogą milczeć, co nie przeszkadza w sprawdzeniu stołu. Mowa i dźwięki komputera mają pozostać poza torem emisji."],
+  ["h2", "Uruchomienie"],
+  ["p", "Otwórz START.bat. Program sam poszuka miksera w sieci, tak jak AOSC, i od razu połączy się z jedynym znalezionym. Zapyta tylko wtedy, gdy znajdzie kilka mikserów albo żadnego; wtedy wpisz numer albo adres IP z okna połączenia AOSC albo M-AIR Edit. Program najpierw porówna mikser z BAZĄ bez zapisu. Gdy wszystkie 693 węzły się zgadzają, od razu uruchomi mostek i niczego nie wczyta. Gdy się różnią, bez pytania zapisze kopię bieżącego ustawienia, wczyta BAZĘ, sprawdzi 693 węzły, wyłączy solo i uruchomi mostek. Kopie są w program\\kopie. Przy rozbieżnościach wybierz domyślną odmowę dalszego startu i odeślij raport. Zapisanych snapshotów w mikserze nie ruszamy. To wydanie testowe; działanie wczytywania na firmware Twojego MR18 wymaga potwierdzenia."],
+  ["p", "W trakcie audycji do ponownego uruchomienia mostka służy RESTART.bat. Bez żadnych pytań znajduje mikser, niczego do niego nie zapisuje i od razu uruchamia mostek. Gdy stół przestaje reagować, a mostek mówi o odłączonym kontrolerze, mostka nie trzeba uruchamiać od nowa: wyłącz i włącz X-TOUCH."],
+  ["h2", "Dziesięć prób na stole"],
+  ["ol", [
+    "F1 albo SELECT paska 1: włącz i wyłącz mikrofon. Oczekuj informacji o mikrofonie na antenie lub poza anteną oraz o głośnikach.",
+    "F2: odczytaj status. Usłyszysz stan mikrofonu, telefonu, Zooma i głośników. Przy niezgodnym profilu zakończ próbę.",
+    "SELECT paska 2, potem 3: włącz CUE telefonu i Zooma. Oczekuj komunikatu o rozmowie poza anteną. Naciśnij ponownie, aby zwolnić CUE.",
+    "Suwaki: przesuń pasek 2 lub 3 w górę i w dół. Oczekuj wejścia rozmówcy na antenę i powrotu do oczekiwania. Nie trzymaj silników na siłę.",
+    "Gałka paska 2: obróć o ząbek, potem wciśnij. Oczekuj wartości wzmocnienia, a po wciśnięciu statusu paska.",
+    "F3 po włączeniu CUE: kończy prywatną rozmowę. Oczekuj informacji o zwolnieniu CUE, nie o rozłączeniu telefonu.",
+    "F4: naciskaj kolejno. Usłyszysz nazwy trybów: mowa, dźwięki, dźwięki z mową. Wybór zostaje po restarcie.",
+    "F5 po F2: usłyszysz ponownie ostatni komunikat stanu, bez zmiany miksera.",
+    "MUTE paska 1 przy mikrofonie na antenie: przytrzymaj i puść. Kaszel celowo nie ma komunikatu. Naciśnij F2 podczas trzymania, aby usłyszeć stan na czas kaszlu, i po puszczeniu, aby potwierdzić powrót mikrofonu.",
+    "Wyłącz i włącz X-TOUCH albo odłącz i podłącz jego USB. Oczekuj ostrzeżenia o utracie kontrolera, a po kilku sekundach informacji o powrocie i uzgodnienia suwaków z mikserem. Mostka nie trzeba uruchamiać od nowa."
+  ]],
+  ["h2", "Po teście"],
+  ["p", "W oknie mostka wpisz koniec i naciśnij Enter. Uruchom PRZYWROC.bat, podaj adres i wpisz TAK. Przywróci ostatnią kopię sprzed BAZY, sprawdzi wynik i pozostawi solo wyłączone. Przed przywróceniem zapisze osobną kopię obecnego stanu. Samo zamknięcie programu nie cofa zmian."],
+  ["p", "Spakuj katalogi program\\wyniki i program\\kopie. Odeślij je Michałowi z krótką informacją, które próby zadziałały i co było słychać. Dłuższa instrukcja i dawne pliki 1 do 6 są w program\\dodatki, dla zaawansowanych."],
+  ["p", "Źródło ustawienia MC i USB: Behringer X-TOUCH Quick Start Guide V 6.0, Configuration menu: https://cdn-media.empowertribe.com/5f4ebaa5746d48b39c2bc317641de448/QSG_BE_0808-AAD_X-TOUCH_WW.pdf"]
+]

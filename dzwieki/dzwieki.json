@@ -1,0 +1,112 @@
+{
+ "talkback_start": {
+  "plik": "talkback_start.wav",
+  "opis": "Talkback, potwierdzone otwarcie do adresata, dwa tony w górę",
+  "czas_s": 0.17
+ },
+ "talkback_koniec": {
+  "plik": "talkback_koniec.wav",
+  "opis": "Talkback, puszczenie i potwierdzone przywrócenie, dwa tony w dół",
+  "czas_s": 0.17
+ },
+ "mikrofon_na_antenie": {
+  "plik": "mikrofon_na_antenie.wav",
+  "opis": "Mikrofon na antenie",
+  "czas_s": 0.23
+ },
+ "mikrofon_poza_antena": {
+  "plik": "mikrofon_poza_antena.wav",
+  "opis": "Mikrofon poza anteną",
+  "czas_s": 0.23
+ },
+ "sluchacz_cue": {
+  "plik": "sluchacz_cue.wav",
+  "opis": "Słuchacz, rozmowa poza anteną",
+  "czas_s": 0.175
+ },
+ "sluchacz_czeka": {
+  "plik": "sluchacz_czeka.wav",
+  "opis": "Słuchacz czeka",
+  "czas_s": 0.23
+ },
+ "sluchacz_na_antenie": {
+  "plik": "sluchacz_na_antenie.wav",
+  "opis": "Słuchacz na antenie",
+  "czas_s": 0.23
+ },
+ "zoom_cue": {
+  "plik": "zoom_cue.wav",
+  "opis": "Zoom, rozmowa poza anteną",
+  "czas_s": 0.175
+ },
+ "zoom_czeka": {
+  "plik": "zoom_czeka.wav",
+  "opis": "Zoom czeka",
+  "czas_s": 0.23
+ },
+ "zoom_na_antenie": {
+  "plik": "zoom_na_antenie.wav",
+  "opis": "Zoom na antenie",
+  "czas_s": 0.23
+ },
+ "glosniki_graja": {
+  "plik": "glosniki_graja.wav",
+  "opis": "Głośniki grają",
+  "czas_s": 0.23
+ },
+ "glosniki_wyciszone": {
+  "plik": "glosniki_wyciszone.wav",
+  "opis": "Głośniki wyciszone",
+  "czas_s": 0.23
+ },
+ "odtwarzacz_start": {
+  "plik": "odtwarzacz_start.wav",
+  "opis": "Odtwarzacz, start",
+  "czas_s": 0.23
+ },
+ "odtwarzacz_stop": {
+  "plik": "odtwarzacz_stop.wav",
+  "opis": "Odtwarzacz, stop",
+  "czas_s": 0.23
+ },
+ "odsluch_wlaczony": {
+  "plik": "odsluch_wlaczony.wav",
+  "opis": "Odsłuch kontrolny włączony",
+  "czas_s": 0.23
+ },
+ "odsluch_wylaczony": {
+  "plik": "odsluch_wylaczony.wav",
+  "opis": "Odsłuch kontrolny wyłączony",
+  "czas_s": 0.23
+ },
+ "automat_wstrzymany": {
+  "plik": "automat_wstrzymany.wav",
+  "opis": "Automat czeka na mikrofon",
+  "czas_s": 0.23
+ },
+ "automat_zwolniony": {
+  "plik": "automat_zwolniony.wav",
+  "opis": "Automat wznowiony",
+  "czas_s": 0.23
+ },
+ "automat_zatrzymane": {
+  "plik": "automat_zatrzymane.wav",
+  "opis": "Utwór skończony, następny czeka",
+  "czas_s": 0.06
+ },
+ "czekam_na_mikser": {
+  "plik": "czekam_na_mikser.wav",
+  "opis": "Czekam na mikser",
+  "czas_s": 0.018
+ },
+ "odmowa": {
+  "plik": "odmowa.wav",
+  "opis": "Odmowa",
+  "czas_s": 0.185
+ },
+ "alarm": {
+  "plik": "alarm.wav",
+  "opis": "Alarm, zawsze z komunikatem mową",
+  "czas_s": 0.285
+ }
+}

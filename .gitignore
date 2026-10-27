@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+/logi/
+/podsluch/*.jsonl
+/dziennik/
+/podsluch/
+/ustawienia/tryb_informacji.json
+/ustawienia/tryb_informacji.json.tmp

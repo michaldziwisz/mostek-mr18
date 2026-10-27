@@ -1,0 +1,20 @@
+Mostek MR18 / MR18 radio bridge
+
+Kod projektu: licencja BSD 3-Clause (plik LICENSE).
+
+Składniki zewnętrzne dołączone do repozytorium i paczki Windows:
+
+1. nvdaControllerClient.dll (biblioteki/x64, biblioteki/x86)
+   Biblioteka klienta NVDA Controller z projektu NVDA (NV Access).
+   Licencja: GNU LGPL 2.1, pełny tekst w biblioteki/LICENSE-nvdaControllerClient.txt.
+   Źródła: https://github.com/nvaccess/nvda (katalog nvdaHelper/client).
+   Mostek ładuje ją dynamicznie jako osobny plik i jej nie modyfikuje;
+   można ją zastąpić własną zgodną wersją, podmieniając plik.
+
+2. Paczka Windows (wydania na GitHubie) zawiera interpreter Pythona
+   i program uruchomieniowy PyInstaller na ich licencjach
+   (Python Software Foundation License, PyInstaller: GPL 2 z wyjątkiem
+   dla programów budowanych).
+
+Projekt NIE zawiera plików Air Access 18 ani AOSC (azslow.com). Schemat sceny dane_sceny/schemat-mr18.json powstał
+z pomiaru na mikserze Midas MR18.

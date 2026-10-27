@@ -1,0 +1,282 @@
+[
+  {
+    "sciezka": "zrodla",
+    "status": "AttributeError",
+    "komunikat": "'list' object has no attribute 'items'"
+  },
+  {
+    "sciezka": "zrodla.mikrofon",
+    "status": "TypeError",
+    "komunikat": "'NoneType' object is not subscriptable"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.nazwa",
+    "status": "KeyError",
+    "komunikat": "'nazwa'"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly",
+    "status": "OK",
+    "sha256": "6aed54d4c8a841d6b68ef9f7036828ac70adeb7c87eab74d76ba796aad1b5186"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly",
+    "status": "OK",
+    "sha256": "6d47be259828314e04063afd582981eb303fc4db51d6afaf739c43661233ac66"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly[0]",
+    "status": "OK",
+    "sha256": "6756f0db76baeea0982b43f393a3bb8c9509953773b887735757382673d25ee4"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly[0]",
+    "status": "OK",
+    "sha256": "bc4bd84f4e424086ae9b1ce525c682c81336b5581ec77a6fe977f902b2063642"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly[0]",
+    "status": "BladUstawien",
+    "komunikat": "kanał 1 przypisany dwa razy: mikrofon i muzyka1"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly[0]",
+    "status": "OK",
+    "sha256": "5f15842b0d57272ce6fc4a90c77d445e7bb699952abad87af048bd2fbcdcef64"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.kanaly[0]",
+    "status": "TypeError",
+    "komunikat": "int() argument must be a string, a bytes-like object or a real number, not 'dict'"
+  },
+  {
+    "sciezka": "zrodla.muzyka3.kanaly[0]",
+    "status": "BladUstawien",
+    "komunikat": "kanał 9 przypisany dwa razy: mikrofon i muzyka3"
+  },
+  {
+    "sciezka": "zrodla.telefon.odbiorca",
+    "status": "BladUstawien",
+    "komunikat": "pasek 2: talkback tylko na pasku rozmówcy z własnym odbiorcą"
+  },
+  {
+    "sciezka": "zrodla.telefon.glos",
+    "status": "OK",
+    "sha256": "7b4c077394ea76d23d9b15a32004220be9f9c3b0f9158bb428a5963fd0369be9"
+  },
+  {
+    "sciezka": "zrodla.mikrofon.suwak_maks_db",
+    "status": "BladUstawien",
+    "komunikat": "mikrofon: suwak_maks_db poza zakresem 0 do plus 10 dB"
+  },
+  {
+    "sciezka": "odbiorcy.telefon.szyny",
+    "status": "OK",
+    "sha256": "e6a312396e61611df15be449536f49ff47c13d24788a3a978c33d4c7260a5ffb"
+  },
+  {
+    "sciezka": "odbiorcy.telefon.szyny[0]",
+    "status": "OK",
+    "sha256": "23423e3a3cceb28caf76e438392256837e7e36acdeb03f38aea49974e9662f28"
+  },
+  {
+    "sciezka": "odbiorcy.zoom.szyny[0]",
+    "status": "OK",
+    "sha256": "f1b95c77ad22e211896707058754381008d0d58c3201711d1df5e34254a6f776"
+  },
+  {
+    "sciezka": "odbiorcy.telefon.wlasne_zrodlo",
+    "status": "BladUstawien",
+    "komunikat": "odbiorca telefon: nieznane własne źródło"
+  },
+  {
+    "sciezka": "odbiorcy.telefon.wlasne_zrodlo",
+    "status": "BladUstawien",
+    "komunikat": "przyciszany słuchacz musi być rozmówcą"
+  },
+  {
+    "sciezka": "szyny.klucz_przyciszania",
+    "status": "BladUstawien",
+    "komunikat": "szyna klucza przyciszania musi być osobną szyną, bez głośników i rozmówców"
+  },
+  {
+    "sciezka": "szyny.podsluch_telefonu",
+    "status": "BladUstawien",
+    "komunikat": "szyna podsłuchu nie może być szyną rozmówcy"
+  },
+  {
+    "sciezka": "szyny.glosniki",
+    "status": "BladUstawien",
+    "komunikat": "szyna głośników musi być osobną szyną"
+  },
+  {
+    "sciezka": "paski[1].pasek",
+    "status": "OK",
+    "sha256": "5be5bfaa1fdd9dd163676066bb5f86983129b5a31850c91a1f6af66232d43f0e"
+  },
+  {
+    "sciezka": "paski[0].pasek",
+    "status": "OK",
+    "sha256": "a01dc3bab638053e9e2693f97fe77c69395731636ccaaa1af867fc298e36e84e"
+  },
+  {
+    "sciezka": "paski[0].pasek",
+    "status": "TypeError",
+    "komunikat": "int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
+  },
+  {
+    "sciezka": "paski[0].zrodlo",
+    "status": "BladUstawien",
+    "komunikat": "pasek 1: nieznane źródło nie_ma"
+  },
+  {
+    "sciezka": "paski[1].mute",
+    "status": "BladUstawien",
+    "komunikat": "pasek 2: przycisk kaszlu tylko na pasku mikrofonu"
+  },
+  {
+    "sciezka": "paski[0].rec",
+    "status": "BladUstawien",
+    "komunikat": "pasek 1: nieznane znaczenie REC 'nie_ma'"
+  },
+  {
+    "sciezka": "paski[3].select",
+    "status": "BladUstawien",
+    "komunikat": "pasek 4: CUE tylko na paskach rozmówców"
+  },
+  {
+    "sciezka": "przyciszanie.zrodla_klucza",
+    "status": "BladUstawien",
+    "komunikat": "klucz przyciszania: mikrofon tak, słuchacz nigdy"
+  },
+  {
+    "sciezka": "przyciszanie.sluchacz",
+    "status": "BladUstawien",
+    "komunikat": "przyciszany słuchacz musi być rozmówcą"
+  },
+  {
+    "sciezka": "komunikaty.tryb_mowa",
+    "status": "BladUstawien",
+    "komunikat": "brak komunikatu 'tryb_mowa'"
+  },
+  {
+    "sciezka": "komunikaty.mikrofon_stan",
+    "status": "BladUstawien",
+    "komunikat": "zdarzenie dźwięku 'mikrofon_stan:wlaczony': nie ma takiego komunikatu"
+  },
+  {
+    "sciezka": "komunikaty.mikrofon_stan",
+    "status": "OK",
+    "sha256": "c18ea30e335daba2305280881bdf6d9acc916abf75b92e7f784155de6aa14412"
+  },
+  {
+    "sciezka": "informacja_zwrotna.zdarzenia.obce",
+    "status": "BladUstawien",
+    "komunikat": "zdarzenie dźwięku 'obce': nie ma takiego komunikatu"
+  },
+  {
+    "sciezka": "informacja_zwrotna.zdarzenia.talkback_start",
+    "status": "BladUstawien",
+    "komunikat": "zdarzenie dźwięku 'talkback_start': wartość to klucz dźwięku albo lista kluczy"
+  },
+  {
+    "sciezka": "informacja_zwrotna.dzwiek_ostrzezenia",
+    "status": "BladUstawien",
+    "komunikat": "informacja_zwrotna.dzwiek_ostrzezenia: klucz dźwięku albo null"
+  },
+  {
+    "sciezka": "xtouch.ponowienie_portu_s",
+    "status": "BladUstawien",
+    "komunikat": "xtouch.ponowienie_portu_s poza zakresem 0,2 do 60 sekund"
+  },
+  {
+    "sciezka": "xtouch.zycie_s",
+    "status": "BladUstawien",
+    "komunikat": "xtouch.zycie_s: 0 albo od 0,2 do 30 sekund"
+  },
+  {
+    "sciezka": "xtouch.zycie_proby",
+    "status": "BladUstawien",
+    "komunikat": "xtouch.zycie_proby poza zakresem 1 do 10"
+  },
+  {
+    "sciezka": "emisja.mikrofon_wstrzymuje_automat",
+    "status": "BladUstawien",
+    "komunikat": "emisja.mikrofon_wstrzymuje_automat: wymagane true albo false"
+  },
+  {
+    "sciezka": "emisja.program",
+    "status": "OK",
+    "sha256": "e260c563186900bc6ab7c033a7329e3902c33cfd0bd96f8a17cc2cd6270ba6c4"
+  },
+  {
+    "sciezka": "profil.usb_suche_dozwolone",
+    "status": "BladUstawien",
+    "komunikat": "profil.usb_suche_dozwolone: wyjścia 1/2 (Zoom) i 3/4 (emisja) nigdy nie niosą suchego głosu"
+  },
+  {
+    "sciezka": "profil.wyjscia_usb",
+    "status": "OK",
+    "sha256": "b82f0445f80085f355d82680f628fb6f407a76b45a917fdab18772f04a480030"
+  },
+  {
+    "sciezka": "zachowanie.alarm_ciszy.prog_dbfs",
+    "status": "BladUstawien",
+    "komunikat": "próg alarmu ciszy poza zakresem 0 do minus 90 dBFS"
+  },
+  {
+    "sciezka": "zachowanie.alarm_ciszy.czas_s",
+    "status": "BladUstawien",
+    "komunikat": "czas alarmu ciszy i przerwa powtórki muszą być dodatnie"
+  },
+  {
+    "sciezka": "zachowanie.alarm_ciszy.powtorka_s",
+    "status": "BladUstawien",
+    "komunikat": "czas alarmu ciszy i przerwa powtórki muszą być dodatnie"
+  },
+  {
+    "sciezka": "zachowanie.przyciszenie_muzyki_cue_db",
+    "status": "BladUstawien",
+    "komunikat": "przyciszenie muzyki przy CUE poza zakresem 0 do minus 60 dB"
+  },
+  {
+    "sciezka": "zachowanie.prog_suwaka_na_antenie_db",
+    "status": "OK",
+    "sha256": "b586845b40b38afdaa43af03e43afe017c183f4f06b190680e7c6b2aded30d96"
+  },
+  {
+    "sciezka": "zachowanie.przypomnienie_mikrofonu_min",
+    "status": "BladUstawien",
+    "komunikat": "przypomnienie mikrofonu: liczba minut nie może być ujemna"
+  },
+  {
+    "sciezka": "mikser.port",
+    "status": "OK",
+    "sha256": "bc2fd087f80fe45c7364b0f89ed481bbc2287d64d3085fc5bbbd836352bb3f2b"
+  },
+  {
+    "sciezka": "wersja_schematu",
+    "status": "OK",
+    "sha256": "806e9c8305cde57fc1c1428214cb76a1de8e64b205f75a6a2746923e0807a22a"
+  },
+  {
+    "sciezka": "poziomy.wysylki.mikrofon.telefon",
+    "status": "BladUstawien",
+    "komunikat": "brak poziomu bazowego wysyłki mikrofon -> telefon"
+  },
+  {
+    "sciezka": "poziomy.wysylki.mikrofon.telefon",
+    "status": "OK",
+    "sha256": "23664c4a4fb0a4f37b6ae8a04c242478f5e0684dddfa5647465d92d025970555"
+  },
+  {
+    "sciezka": "poziomy.wysylki.mikrofon.telefon",
+    "status": "OK",
+    "sha256": "a92c1b376967fbe0cb244999bb85736112bcc440e7972cd185efc6ca64d89468"
+  },
+  {
+    "sciezka": "poziomy.wysylki",
+    "status": "BladUstawien",
+    "komunikat": "brak poziomu bazowego wysyłki mikrofon -> telefon"
+  }
+]

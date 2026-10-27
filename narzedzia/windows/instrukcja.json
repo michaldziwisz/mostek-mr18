@@ -1,0 +1,245 @@
+[
+  [
+    "h1",
+    "Mostek MR18 i X-TOUCH. Paczka testowa"
+  ],
+  [
+    "h2",
+    "Najpierw bezpieczeństwo"
+  ],
+  [
+    "p",
+    "Badanie MR18 w kroku 2 oraz podsłuch MIDI w kroku 4 nie zmieniają ustawień miksera. Mostek z prawdziwym mikserem w krokach 5 i 6 ZAPISUJE do MR18: wysyłki, Main LR, mute, Bus 5 i 6 oraz solo. Ochronne zamknięcia niebezpiecznych dróg mogą nastąpić już podczas odczytu niezgodnego profilu, bez naciśnięcia przycisku. To program dla układu kanałów stanowiska Michała, nie uniwersalny sterownik każdego studia."
+  ],
+  [
+    "ol",
+    [
+      "Przed krokiem 5 lub 6 zapisz bieżący stan jako własną scenę w wolnym miejscu w M-AIR Edit. Upewnij się, że potrafisz ją ponownie wczytać. Samo zamknięcie mostka nie przywraca poprzednich ustawień.",
+      "Nie testuj podczas emisji na żywo. Odłącz tor emisji. Nie wykonuj prób przy głośno ustawionych głośnikach. Najbezpieczniej odłączyć głośniki, a słuchawki ustawić cicho.",
+      "Po teście zamknij mostek poleceniem koniec i dopiero wtedy wczytaj swoją scenę. Przy niezgodnym profilu oczekuj blokady otwarć. Nie omijaj jej i nie zmieniaj przypadkowo ustawień, żeby uciszyć ostrzeżenie.",
+      "Można zakończyć badanie na kroku 4. Te wyniki już są użyteczne. Kroki 5 i 6 wymagają zgodnej sceny oraz wpisania TAK po ostrzeżeniu."
+    ]
+  ],
+  [
+    "h2",
+    "Czy program rusza moje sceny?"
+  ],
+  [
+    "p",
+    "Zapisane sceny w pamięci MR18 pozostają nietknięte. Mostek nie wczytuje, nie zapisuje i nie kasuje scen. Zapora blokuje zapisy całych rodzin poleceń /-snap/*, /snap/* oraz /-action/*, także indeksu sceny. Program zmienia natomiast bieżący, roboczy stan miksera w kroku 5 lub 6: wysyłki, Main LR, mute, Bus 5 i 6 oraz solo. MR18 pamięta ten stan również po wyłączeniu zasilania. Dlatego przed próbą zapisz bieżący stan jako scenę w wolnym miejscu w M-AIR Edit, a po teście zamknij mostek i wczytaj tę scenę. Kroki 1 do 4 nie zapisują niczego w mikserze, choć zapisują wyniki na komputerze. Ręczne wczytanie BAZY w kroku 0 jest osobną, świadomą zmianą w M-AIR Edit."
+  ],
+  [
+    "h2",
+    "Co to jest"
+  ],
+  [
+    "p",
+    "Mostek to program sterujący radiowym stanowiskiem z Midasem MR18 i pełnym Behringerem X-TOUCH. Łączy przyciski oraz suwaki kontrolera przez MIDI z mikserem przez sieć, wypisuje komunikaty, a opcjonalnie przekazuje je do NVDA. Mikser sam miksuje dźwięk, mostek nie przenosi ani nie przetwarza audio. Ta paczka służy do prób przed użyciem w emisji. Wyniki symulatora nie dowodzą zachowania prawdziwego sprzętu."
+  ],
+  [
+    "h2",
+    "Co jest potrzebne"
+  ],
+  [
+    "ul",
+    [
+      "Windows 10 albo 11, wersja 64 bit. Python nie jest potrzebny. Podstawowa droga obsługi to NVDA, z którego korzystasz. Konsola pozostaje wariantem zapasowym.",
+      "MR18 i komputer w tej samej sieci przewodowej albo Wi-Fi. Do prób stabilności najlepiej użyć przewodu. Mostek nie wyszukuje miksera i nie skanuje sieci.",
+      "Pełny X-TOUCH, nie Compact, One, Mini ani Extender, podłączony przez USB do komputera w trybie MC. Według instrukcji producenta USB MIDI nie wymaga osobnego sterownika.",
+      "M-AIR Edit do zapisania sceny, odczytu adresu MR18 i porównania wyników. Do samego sterowania OSC nie jest potrzebne połączenie USB audio MR18.",
+      "Zapisz ZIP na dysku i rozpakuj całą zawartość do własnego, zapisywalnego katalogu, na przykład Dokumenty\\MostekMR18. Nie uruchamiaj programów z widoku ZIP. Nie przenoś samych EXE bez katalogu _internal. Nie jest potrzebne uruchamianie jako administrator."
+    ]
+  ],
+  [
+    "h2",
+    "Ustaw X-TOUCH w trybie MC przez USB"
+  ],
+  [
+    "ol",
+    [
+      "Wyłącz X-TOUCH. Przytrzymaj SELECT na pierwszym pasku i włącz zasilanie. Otworzy się menu konfiguracji.",
+      "Obracaj pierwszą gałkę, aż tryb emulacji będzie MC.",
+      "Drugą gałką wybierz interfejs USB, nie MIDI ani Network.",
+      "Naciśnij ponownie SELECT pierwszego paska, aby zapisać ustawienia i uruchomić wybrany tryb. Podłącz port USB kontrolera przeznaczony do połączenia z komputerem, nie gniazda koncentratora USB."
+    ]
+  ],
+  [
+    "p",
+    "Źródło: Behringer X-TOUCH Quick Start Guide, V 6.0, Getting started, Configuration menu oraz Hardware setup. Oficjalny dokument: https://cdn-media.empowertribe.com/5f4ebaa5746d48b39c2bc317641de448/QSG_BE_0808-AAD_X-TOUCH_WW.pdf"
+  ],
+  [
+    "h2",
+    "Znajdź adres MR18"
+  ],
+  [
+    "p",
+    "Odczytaj adres IP swojego MR18 w M-AIR Edit, w oknie połączenia albo na ekranie ustawień sieci miksera. Wpisuj adres miksera, nie komputera ani X-TOUCH. Nie trzeba zmieniać konfiguracji sieci. Jeśli zapora Windows zapyta o dostęp do sieci, zezwól tylko w zaufanej sieci prywatnej. Nie wyłączaj całej zapory. Przy braku odpowiedzi sprawdź adres i połączenie w M-AIR Edit."
+  ],
+  [
+    "h2",
+    "0. Wczytanie sceny BAZA"
+  ],
+  [
+    "p",
+    "Przed próbą mostka z prawdziwym mikserem przeczytaj scena\\WCZYTANIE-BAZY.txt albo odpowiadający mu plik HTML. Instrukcja sceny opisuje także dostępną drogę przez AOSC z Air Access 18, zalecaną do pracy z NVDA. Zapisz własną scenę w wolnym miejscu, wczytaj BAZĘ ręcznie w AOSC albo M-AIR Edit według tamtej instrukcji, testuj, a po zamknięciu mostka wróć do swojej sceny. Samo zamknięcie programu ani wyłączenie miksera nie cofnie zmian. Możesz najpierw wykonać kroki 1 do 4 bez wczytywania BAZY, aby zachować odczyt pierwotnej konfiguracji. Uwaga: dołączona BAZA włącza phantom 48 V na wejściu 9. Przed wczytaniem sprawdź podłączone tam urządzenie i kabel, zwłaszcza przy mikrofonie wstęgowym albo niesymetrycznym połączeniu. Pozostałe wejścia mają phantom wyłączony. W paczce jest tylko BAZA.scn, bez historycznego wariantu z nagłówkiem, o którym wspomina instrukcja sceny."
+  ],
+  [
+    "p",
+    "Jeśli w katalogu scena jest tylko CZYTAJ.txt, pliki sceny jeszcze nie są dołączone. W takim przypadku wykonaj tylko kroki 1 do 4. Nie odtwarzaj BAZY na podstawie samej numeracji kanałów z tej instrukcji."
+  ],
+  [
+    "h2",
+    "1. Symulator bez sprzętu"
+  ],
+  [
+    "p",
+    "Otwórz 1_symulator.bat. Ten krok nie potrzebuje MR18 ani X-TOUCH. Po odczycie stanu zobaczysz pomoc i komunikaty [mowa]. Dźwięki w tym skrócie są tylko napisami [dzwiek], nic nie gra. Wpisuj polecenia i zatwierdzaj Enterem. Po każdym poczekaj na odpowiedź."
+  ],
+  [
+    "ol",
+    [
+      "Wpisz f1, potem f2. Otrzymasz potwierdzenie przełączenia mikrofonu i status.",
+      "Wpisz f4, a potem f5. F4 zmienia sposób informacji, F5 powtarza ostatni komunikat stanu. Zmiana trybu zapisuje się na kolejne uruchomienie.",
+      "Wpisz cue 2, potem suwak 2 100. To rozmowa ze słuchaczem poza anteną, a następnie jego wejście na antenę. Wpisz suwak 2 0, żeby wrócił do oczekiwania.",
+      "Zakończ poleceniem koniec. Wynik to nauka obsługi oraz wyniki\\symulator.log. Plik ustawienia\\tryb_informacji.json powstanie po F4."
+    ]
+  ],
+  [
+    "h2",
+    "2. Odczyt MR18 i mierników"
+  ],
+  [
+    "p",
+    "Otwórz 2_badanie_mr18.bat i podaj adres MR18. Narzędzie pyta o identyfikację i ścieżki OSC, a na końcu pobiera blok mierników. Nie zmienia routingu, sceny, głośności ani mute. Subskrypcja mierników jest żądaniem danych, nie zmianą ustawień dźwięku. Badanie potrwa zwykle kilkadziesiąt sekund, przy brakujących odpowiedziach dłużej. Wynik to wyniki\\badanie_mr18.json. Brak odpowiedzi lub niezgodny typ też jest ważnym wynikiem, nie poprawiaj go ręcznie."
+  ],
+  [
+    "ul",
+    [
+      "Zanotuj model i wersję firmware obu urządzeń w zwykłym pliku tekstowym w wyniki\\. Dla MR18 identyfikacja może być także w raporcie /xinfo.",
+      "Porównaj wartości wybranych ścieżek z ekranem M-AIR Edit. Sam typ i obecność odpowiedzi nie dowodzą zakresu ani znaczenia parametru, szczególnie tap 3 i 4, gain i solo.",
+      "Jeśli masz bezpieczne źródło tonu o znanym poziomie, poza emisją i przy odłączonych głośnikach porównaj Main LR w M-AIR Edit z raportem mierników. Zapisz poziom tonu i wskazania. Bez takiego źródła pomiń tę próbę, nie zgaduj wyniku.",
+      "Raport pokazuje surowy blok oraz interpretacje little i big. Indeksy Main LR 6 i 7 i skala dBFS są hipotezą do sprawdzenia. Narzędzie pobiera pierwszy blok, więc nie mierzy odstępów między blokami ani czasu wygaśnięcia subskrypcji.",
+      "Kolejne uruchomienie zastępuje badanie_mr18.json. Przed powtórzeniem zmień nazwę wcześniejszego pliku, na przykład na badanie_mr18_cisza.json, żeby zachować oba wyniki."
+    ]
+  ],
+  [
+    "h2",
+    "3. Lista urządzeń MIDI"
+  ],
+  [
+    "p",
+    "Zamknij programy korzystające z MIDI, w tym mostek. Otwórz 3_lista_midi.bat. Lista wejść pojawi się na ekranie i w wyniki\\lista_midi.txt. Zapamiętaj nazwę wejścia X-TOUCH. Pusta lista oznacza, że Windows nie udostępnia wejścia. Sprawdź USB i tryb MC oraz USB na kontrolerze, bez zmieniania ustawień MR18."
+  ],
+  [
+    "h2",
+    "4. Podsłuch X-TOUCH"
+  ],
+  [
+    "p",
+    "Otwórz 4_podsluch_xtouch.bat. Enter przy pytaniu o nazwę zostawia X-TOUCH. W razie innej nazwy wpisz ją dokładnie z listy. Program zapisuje tylko odebrane MIDI i niczego nie wysyła do kontrolera ani miksera. Zapis trafia do wyniki\\podsluch_xtouch.jsonl, kolejne próby dopisują wiersze."
+  ],
+  [
+    "ol",
+    [
+      "Przed każdym elementem wpisz opis i jego nazwę, na przykład opis F1 albo opis MUTE pasek 1. Zatwierdź Enterem. Dopiero potem użyj tego elementu.",
+      "Sprawdź każdy przycisk na każdym pasku: naciśnięcie i puszczenie. Sprawdź F1 do F8, przyciski transportu i pozostałe klawisze. Przytrzymaj MUTE pierwszego paska i puść, żeby było widać osobne puszczenie potrzebne do kaszlu.",
+      "Dla każdej gałki opisz obrót w prawo, w lewo i wciśnięcie. Dla każdego suwaka, także MASTER, opisz sam dotyk, przesunięcie i puszczenie. Powoli przejdź od dołu do góry i z powrotem.",
+      "Zapisz opis restart X-TOUCH, wykonaj restart i zanotuj zachowanie. Powtórz dla odłączenia i podłączenia USB. Sam podsłuch nie otwiera ponownie utraconego portu. Jeśli przestanie zapisywać, zakończ go poleceniem koniec i uruchom ponownie. Brak zapisu po restarcie także opisz.",
+      "Zakończ poleceniem koniec przed uruchomieniem mostka. Ruchu silnika przeciw trzymanej ręce nie da się zbadać samym podsłuchem, bo ten nie steruje silnikiem. Ta część wymaga osobnej próby ze zgodnym profilem i mostkiem."
+    ]
+  ],
+  [
+    "h2",
+    "5. Mostek z mikserem i NVDA, podstawowa droga"
+  ],
+  [
+    "p",
+    "Uruchom NVDA i otwórz 6_mostek_z_nvda.bat tylko po zapisaniu własnej sceny, przygotowaniu BAZY według kroku 0 i zabezpieczeniu toru audio. Numer pliku BAT nie jest tu numerem kroku: w kroku 5 podstawową drogą jest plik 6_mostek_z_nvda.bat. Przeczytaj ostrzeżenie, wpisz TAK i podaj adres MR18. Mostek otwiera MIDI X-TOUCH i zaczyna współpracować z mikserem. Komunikaty są przekazywane do NVDA. Jeśli NVDA nie jest dostępne, mostek zgłasza to i przechodzi na konsolę. Paczka nie instaluje czytnika. Dźwięki informacji zwrotnej mogą grać przez domyślne wyjście Windows, zależnie od trybu wybranego F4. Ustaw to wyjście poza torem emisji i cicho. Aby dźwięki informacji zwrotnej były tylko tekstem, można uruchomić mostek.exe z dodatkową opcją --dzwieki-konsola. Ta opcja nie wyłącza mowy NVDA."
+  ],
+  [
+    "p",
+    "Układ oczekiwany przez mostek: muzyka na parach 1/2, 3/4, 5/6, Zoom na 7/8, mikrofon na 9, telefon na 10; Bus 1 to powrót telefonu, Bus 2 podsłuch telefonu, Bus 3/4 powrót Zooma, Bus 5 klucz przyciszania, Bus 6 głośniki mono. Scenę BAZA przygotowuje się zgodnie z instrukcją w katalogu scena, poza mostkiem. Mostek nie wczytuje jej automatycznie. Sama taka numeracja nie wystarcza do zgodności profilu."
+  ],
+  [
+    "ol",
+    [
+      "Najpierw odczytaj F2. Przy komunikacie o niezgodnym profilu nie próbuj wymuszać otwarć. Zapisz komunikat i zakończ. Ochronne zamknięcia mogły już zmienić mikser, dlatego przywróć swoją scenę.",
+      "Tylko przy zgodnym profilu, poza emisją, można sprawdzić F1, F2, F4, F5, SELECT telefonu i Zooma oraz ich suwaki według mapy. Nie trzymaj na siłę silników. Gdy porównujesz stan, kieruj się również odczytem M-AIR Edit, nie samym komunikatem mostka.",
+      "Zapisz, czy diody i silniki odpowiadają stanowi MR18, czy dotyk suwaka jest wykrywany oraz czy puszczenie MUTE kończy kaszel. Przy próbie odłączenia USB mostek powinien zablokować otwieranie i ponawiać otwarcie portu. Po powrocie ma uzgodnić suwaki z mikserem przed odblokowaniem. To zachowanie wymaga potwierdzenia na sprzęcie.",
+      "Nie testuj w tej paczce rzeczywistego uruchamiania emisji. Program emisyjny jest wyłączony, PLAY i STOP nie sterują StationPlaylist ani SARA.",
+      "Wpisz koniec. Wynik jest w wyniki\\mostek.log. Następnie wczytaj własną scenę w M-AIR Edit. Nie zostawiaj testowej konfiguracji na później."
+    ]
+  ],
+  [
+    "h2",
+    "6. Konsola jako wariant zapasowy"
+  ],
+  [
+    "p",
+    "Jeśli potrzebny jest wariant bez przekazywania mowy do NVDA, użyj 5_mostek_z_mikserem.bat zamiast pliku 6, nigdy równocześnie. Obowiązują te same zabezpieczenia, pytanie TAK, adres MR18 i procedura kroku 5. Komunikaty [mowa] są wtedy tylko tekstem na ekranie. Dźwięki mogą nadal grać, zależnie od F4. Podstawową drogą dla Ciebie pozostaje NVDA. Zapisz wynik próby, zakończ poleceniem koniec i przywróć własną scenę. Dziennik dopisuje się do wyniki\\mostek.log."
+  ],
+  [
+    "h2",
+    "Mapa stołu"
+  ],
+  [
+    "ul",
+    [
+      "Pasek 1: mikrofon, kanał MR18 9. Pasek 2: telefon, kanał 10. Pasek 3: Zoom, kanały 7 i 8. Paski 4, 5 i 6: trzy pary muzyki na kanałach 1 do 6. Paski 7 i 8 są wolne. MASTER steruje słuchawkami PHONES.",
+      "Suwak na górze oznacza 0 dB, czyli poziom sceny, na dole wyciszenie. Wyjątek: suwak mikrofonu na górze daje plus 10 dB, a 0 dB jest w trzech czwartych drogi. Rozmówca trafia na antenę powyżej progu minus 50 dB. Pozycja silnika nie jest traktowana jak ruch ręki, liczy się dotyk suwaka.",
+      "SELECT pierwszego paska przełącza mikrofon tak jak F1. REC nie otwiera anteny, rozmówcy wchodzą suwakiem. MUTE pierwszego paska to kaszel na czas trzymania, gdy mikrofon jest na antenie. REC pierwszego paska włącza i wyłącza alarm ciszy na antenie, bez restartu mostka. Po każdym starcie alarm jest taki, jak w pliku ustawień. Pozostałe MUTE i wszystkie SOLO są wolne.",
+      "SELECT telefonu i Zooma włącza rozmowę poza anteną. Ponowne SELECT kończy CUE. Podniesienie suwaka kończy CUE tego rozmówcy i wpuszcza go na antenę. SELECT muzyki to tylko odsłuch kontrolny. Mikrofon nie ma własnego CUE, jego SELECT jest przełącznikiem anteny.",
+      "Wciśnięcie gałki podaje status paska. Obrót gałki telefonu zmienia wzmocnienie, Zooma korekcję poziomu powrotu USB, po 1 dB na ząbek w granicach 12 dB od sceny.",
+      "F1: mikrofon. F2: status. F3: koniec wszystkich rozmów CUE. F4: cykl mowa, dźwięki, dźwięki z mową. F5: powtórzenie ostatniego komunikatu. F6 i F7: wolne. F8: powierzchnia i odsłuch.",
+      "Wstępne przypisania do potwierdzenia na sprzęcie: MIDI TRACKS słuchanie programu, INPUTS rozmowa, AUDIO TRACKS koniec odsłuchu kontrolnego, OUTPUTS wyłączenie głośników, USER włączenie głośników, PLAY następny utwór i STOP zatrzymanie, ale program emisyjny w tej paczce nie jest wybrany.",
+      "Przy mikrofonie na antenie lub CUE głośniki Bus 6 są wyciszane. Po wyłączeniu mikrofonu lub zakończeniu ostatniego CUE mogą włączyć się automatycznie. Dlatego głośniki w testach powinny być odłączone."
+    ]
+  ],
+  [
+    "h2",
+    "Polecenia konsoli"
+  ],
+  [
+    "p",
+    "Polecenia wpisuje się jako tekst, następnie Enter. Wielkość liter w F1 do F8 nie ma znaczenia. PASEK i POZYCJA poniżej opisują składnię, nie są treścią do dosłownego wpisania."
+  ],
+  [
+    "ul",
+    [
+      "pomoc: wyświetla listę. f1 do f8: odpowiedniki przycisków funkcyjnych.",
+      "cue 2 i cue 3: CUE rozmówcy. cue 4, cue 5, cue 6: odsłuch muzyki.",
+      "p PASEK PRZYCISK: przycisk paska. Numery przycisków: 1 REC, 2 SOLO, 3 MUTE, 4 SELECT. Przykład p 1 4 to SELECT mikrofonu, czyli przełącznik anteny.",
+      "kaszel i pusc: przytrzymanie oraz puszczenie kaszlu. kontroler: zgłoszenie powrotu kontrolera i uzgodnienie powierzchni.",
+      "g 2 + i g 2 -: gałka telefonu o jeden ząbek. s 2: status paska telefonu.",
+      "suwak PASEK POZYCJA: pozycja od 0 do 100. Przykład suwak 2 100 to telefon na górze, suwak 2 0 na dole. Pasek 9 oznacza MASTER.",
+      "glosniki wlacz i glosniki wylacz: głośniki. program: odsłuch programu. rozmowa: odsłuch CUE. koniecpfl: koniec odsłuchu kontrolnego. alarm: włączenie albo wyłączenie alarmu ciszy, tak jak REC pierwszego paska.",
+      "play i stop: program emisyjny, w tej paczce niewybrany.",
+      "sym cisza i sym dzwiek: symulacja ciszy lub programu. sym bezmiernikow i sym zmiernikami: brak oraz powrót mierników. Te cztery polecenia działają tylko z symulatorem.",
+      "koniec: zamknięcie programu. Potem okno czeka na dowolny klawisz."
+    ]
+  ],
+  [
+    "h2",
+    "Co odesłać Michałowi"
+  ],
+  [
+    "p",
+    "Spakuj cały katalog wyniki\\, w tym badanie_mr18.json, lista_midi.txt, podsluch_xtouch.jsonl oraz dzienniki symulator.log i mostek.log, o ile powstały. Dołóż zwykły plik tekstowy z wersjami urządzeń, wykonanymi krokami, zauważonymi błędami i informacją, które próby pominięto. Nie ma obowiązku wykonania wszystkich prób. Jeśli uruchamiałeś EXE bez pliku BAT, dołóż także dziennik\\mostek.log. Opcjonalnie dołóż ustawienia\\tryb_informacji.json. Przed wysłaniem sprawdź, czy raport nie zawiera danych, których nie chcesz przekazać: identyfikacja miksera może obejmować nazwę i adres sieciowy. Własnej sceny ani całego ZIP z programem nie trzeba odsyłać."
+  ],
+  [
+    "h2",
+    "Ograniczenia i pliki"
+  ],
+  [
+    "ul",
+    [
+      "To wydanie testowe, bez podpisu cyfrowego. Windows może pokazać ostrzeżenie o nieznanym wydawcy. Jeśli pochodzenie pliku budzi wątpliwość, zatrzymaj się i potwierdź je z Michałem. Nie wyłączaj antywirusa.",
+      "Nie potwierdzono na prawdziwym MR18 znaczenia wszystkich ścieżek OSC, mierników, krzywych suwaków, linków par ani braku trzasków. Nie potwierdzono numerów MIDI, dotyku, silników, puszczenia kaszlu, ponownego podłączenia X-TOUCH ani zachowania NVDA i dźwięków. Ta paczka pomaga zebrać te dowody, nie zastępuje odbioru toru audio.",
+      "Badanie odczytowe nie mierzy zakresów parametrów, reakcji na zapis, częstotliwości mierników ani czasu wygaśnięcia subskrypcji. Sam poprawny raport nie oznacza gotowości do emisji.",
+      "Alarm ciszy mierzy sumę miksera, nie internetowy stream. Nie wykrywa błędów za RadioCasterem. Stan toru telefonu nie oznacza stanu połączenia telefonicznego.",
+      "Pliki sceny BAZA są w osobnym katalogu scena. Jeśli jest tam tylko CZYTAJ.txt, scena nie została jeszcze dołączona i próby 5/6 trzeba odłożyć. W paczce nie ma autostartu, nadzorcy ani awaryjnego skrótu. SARA nie ma wdrożonego sterowania. Obsługi StationPlaylist nie badamy w tej procedurze.",
+      "ustawienia\\ zawiera edytowalne pliki JSON, dzwieki\\ pliki WAV i opis, biblioteki\\ biblioteki NVDA wraz z licencją, _internal\\ środowisko programu. Wszystkie te katalogi muszą zostać razem z EXE. Podczas pierwszej próby niczego w nich nie zmieniaj.",
+      "F4 zapisuje tryb w ustawienia\\tryb_informacji.json obok EXE. Dzienniki ze skrótów BAT trafiają do wyniki\\, a domyślny dziennik przy bezpośrednim uruchomieniu EXE do dziennik\\mostek.log obok EXE, nie do _internal. Gałki i zmiany poziomów mogą zmienić ustawienia\\poziomy_bazowe.json."
+    ]
+  ]
+]
