@@ -113,7 +113,9 @@ def odbior(a):
             po = ''.join(c.node(p) for p in wezly)
         wynik['naruszenia_profilu'] = [vars(n) for n in sprawdz_profil(u, Widok(u, StanOdczytany(dane_profilu)))]
         wynik['odczytane_sciezki_profilu'] = len(dane_profilu)
-        assert not wynik['naruszenia_profilu'], wynik['naruszenia_profilu']
+        # Ostrzeżenia (blokuje=False, np. suchy głos na dozwolonym USB do nagrań)
+        # nie przerywają odbioru; przerywa tylko naruszenie blokujące.
+        assert not [n for n in wynik['naruszenia_profilu'] if n['blokuje']], wynik['naruszenia_profilu']
         assert 'synchronizacja' in log, 'Mostek nie potwierdził pełnej synchronizacji'
         (a.wyjscie / 'stan-po-start.scn').write_text(po, encoding='utf-8', newline='')
         # Pełny raport loadera jest rozstrzygający dla BAZY; dziennik zachowany.

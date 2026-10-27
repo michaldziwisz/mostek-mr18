@@ -40,6 +40,7 @@ Scena jest ustawiona pod **Shure SM7B przez Cloudlifter** na wejściu 9:
 
 - Wejścia USB 1 do 6: trzy stereofoniczne źródła muzyki z komputera (trim −1 dB), USB 7/8: dźwięk z Zooma.
 - Wejście 10: telefon przez BlueDriver-M3 (phantom wyłączony).
+- Wyjście USB 9: suchy mikrofon do nagrań poza anteną (mostek zgłasza to jako ostrzeżenie, nie błąd).
 - Bus 1: powrót do telefonu, Bus 2: podsłuch telefonu w prawym uchu, Bus 3/4: powrót do Zooma, Bus 5: klucz przyciszania (bez wyjścia audio), Bus 6: głośniki mono.
 - FX1: Dual Combinator (mikrofon i telefon), FX2: Stereo Combinator (Zoom), FX3: limiter na sumie, FX4: limiter na powrocie Zooma.
 
