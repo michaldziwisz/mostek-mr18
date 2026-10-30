@@ -170,35 +170,24 @@ class TestCue(TestZSymulatorem):
         self.assertEqual(self.m(sciezki.MONITOR_DIMPFL), 0)
 
     def test_mikrofon_w_rozmowie_jak_na_antenie(self):
-        """Michał 22.10.2026: rozmówca na CUE słyszy mikrofon tak głośno jak
-        antena. Wysyłka przed suwakiem dostaje poziom bazowy plus poziom
-        suwaka mikrofonu (0 dB w symulatorze, potem +10 dB), także po ruchu
-        suwaka w trakcie rozmowy; po CUE wysyłka znika."""
+        """CUE z faderem na dole ma poziom pełnej anteny. Ruch kończy CUE."""
         from mostek.konwersje import poziom_float_na_db
         db = lambda k, b: poziom_float_na_db(float(self.m(sciezki.wysylka(k, b))))
         self.cue("telefon")
         self.assertEqual(self.m(sciezki.tap(9, 1)), sciezki.TAP_PRE)
-        self.assertAlmostEqual(db(9, 1), 0.0, places=1, msg="suwak mikrofonu 0 dB")
-        self.nacisnij("dotyk", 1, True)
-        self.nacisnij("suwak", 1, 1.0)               # mikrofon +10 dB
-        self.nacisnij("dotyk", 1, False)
-        self.czekaj(1.0)
-        self.assertAlmostEqual(db(9, 1), 10.0, places=1, msg="rozmówca słyszy +10 jak antena")
+        self.assertAlmostEqual(db(9, 1), 10.0, places=1)
+        self.assertEqual(self.m(sciezki.fader(9)), 0.0)
         self.cue("zoom")
-        self.assertAlmostEqual(db(9, 3), 10.0, places=1)
-        self.assertAlmostEqual(db(9, 4), 10.0, places=1)
-        self.assertEqual(self.m(sciezki.MONITOR_DIMPFL), 0, "słuchawki bez przyciszenia")
-        self.nacisnij("dotyk", 1, True)
-        self.nacisnij("suwak", 1, 0.5)               # niżej: rozmowa idzie za suwakiem
-        self.nacisnij("dotyk", 1, False)
-        self.czekaj(1.0)
-        f = poziom_float_na_db(float(self.m(sciezki.fader(9))))
-        self.assertAlmostEqual(db(9, 1), f, places=1)
-        self.assertAlmostEqual(db(9, 3), f, places=1)
-        self.klawisz("F3_koniec_rozmowy")
-        self.assertEqual(float(self.m(sciezki.wysylka(9, 1))), 0.0)
-        self.assertEqual(float(self.m(sciezki.wysylka(9, 3))), 0.0)
-        self.assertEqual(self.u.poziom_bazowy("mikrofon", "telefon"), 0.0, "korekta nie zmienia poziomu bazowego")
+        for b in (1, 3, 4):
+            self.assertAlmostEqual(db(9, b), 10.0, places=1)
+        self.ruch("mikrofon", 0.5)
+        self.assertTrue(self.suma("mikrofon"))
+        for r in ("telefon", "zoom"):
+            self.assertFalse(self.cue_sym(r))
+        for b in (1, 3, 4):
+            self.assertEqual(self.m(sciezki.tap(9, b)), sciezki.TAP_POST)
+            self.assertAlmostEqual(db(9, b), 0.0, places=1)
+        self.assertEqual(self.u.poziom_bazowy("mikrofon", "telefon"), 0.0)
 
     def test_program_w_sluchawkach_przy_cue(self):
         """Michał 22.10.2026: przy CUE w słuchawkach gra muzyka z anteny. Pomiar

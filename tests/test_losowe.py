@@ -63,8 +63,10 @@ class TestLosoweCiagi(TestZSymulatorem):
             return ("galka", los.choice((2, 3)), los.choice((1, -1)))
         if r < 0.58:
             return ("galka_wcisnij", los.randint(1, 6))
+        if r < 0.65:
+            return ("ruch", 1, los.choice((0.0, 1 / 16383, 0.5, 1.0)), los.random() < 0.8)
         if r < 0.70:
-            return ("ruch", los.randint(1, 6), los.choice((0.0, 0.1, 0.5, 1.0)), los.random() < 0.8)
+            return ("ruch", los.randint(2, 6), los.choice((0.0, 0.1, 0.5, 1.0)), los.random() < 0.8)
         if r < 0.72:
             return ("tick",)
         if r < 0.73:
@@ -179,10 +181,11 @@ class TestLosoweCiagi(TestZSymulatorem):
                         mik_po = self.m(sciezki.lr(9))
                         if talkback_fizyczny and not self.glosniki_wyciszone():
                             zle.append("talkback trzymany, a głośniki nie są wyciszone")
-                        # Decyzja 6: przełącznik przy CUE nie otwiera anteny.
-                        if cue_przed and mik_przed == 0 and krok in (("klawisz", "F1_mikrofon"), ("przycisk", 1, 3)) \
-                                and mik_po == 1:
-                            zle.append("przełącznik mikrofonu otworzył antenę przy CUE")
+                        # Fader Start: przełącznik lub ręka kończy całe CUE.
+                        start_mikrofonu = (krok in (("klawisz", "F1_mikrofon"), ("przycisk", 1, 3))
+                                           or krok[0] == "ruch" and krok[1] == 1)
+                        if start_mikrofonu and mik_po == 1 and any(self.cue_sym(r) for r in ("telefon", "zoom")):
+                            zle.append("Fader Start zostawił CUE po otwarciu anteny")
                         # Decyzja 2: kaszel nie otwiera anteny przy CUE, a puszczenie
                         # bez trwającego kaszlu (np. po zgubionym puszczeniu) nic nie otwiera.
                         if krok[0] in ("puszczenie", "kontroler") and mik_przed == 0 and mik_po == 1 \

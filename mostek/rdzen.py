@@ -4,8 +4,9 @@ Model rozmów jak w konsoletach D&R (plan v20, rozdz. 6 do 8): SELECT na
 pasku telefonu albo Zooma to CUE (rozmowa poza anteną), drugie naciśnięcie
 zwalnia CUE (rozmówca czeka i słyszy antenę), podniesienie suwaka wpuszcza
 czekającego rozmówcę na antenę. F3 zwalnia wszystkie CUE. Mikrofon wchodzi
-na antenę wyłącznie przełącznikiem (F1 albo SELECT paska 1) i jest w każdej
-rozmowie poza anteną.
+na antenę suwakiem od pierwszego kroku nad dołem. F1 albo SELECT paska 1
+przesuwa go silnikiem na górę lub dół. Wejście kończy wszystkie rozmowy CUE
+i talkback; mikrofon jest w każdej rozmowie poza anteną.
 
 Mechanizmy D&R z planu v21 i v22 (rozdz. 8, „Mechanizmy z konsolet D&R”):
   * podniesienie suwaka rozmówcy z CUE kończy jego CUE i wpuszcza go na
@@ -48,7 +49,7 @@ import time
 from dataclasses import dataclass, field
 
 from . import nauka, sciezki
-from .informacja import AtrapaDzwiekow, InformacjaZwrotna, polacz
+from .informacja import AtrapaDzwiekow, InformacjaZwrotna, Komunikat, polacz
 from .klient import BrakOdpowiedzi, zgodne
 from .konwersje import (ZERO_DB, poziom_db_na_float, dimatt_db_na_float, gain_db_na_float, gain_float_na_db,
                         poziom_db_na_float, poziom_float_na_db, trim_db_na_float, trim_float_na_db)
@@ -212,6 +213,8 @@ class Rdzen:
         self._galka_komunikat: dict[str, float] = {}
         self._dotyk: set[int] = set()
         self._suwak_ruch: dict[int, float] = {}
+        self._mikrofon_suwak_cel: float | None = None
+        self._kaszel_suwak_zamkniety = False
         self._rozbieznosc_zgloszona: set[int] = set()
         self.uzbrojony = False
         self._zgloszenia: queue.SimpleQueue = queue.SimpleQueue()
@@ -379,6 +382,8 @@ class Rdzen:
         byl = self.stan.polaczony if oglos is None else oglos
         self.stan.utrata()
         self.uzbrojony = False
+        self._suwak_ruch.clear()
+        self._mikrofon_suwak_cel = None
         self._dz("utrata", powod)
         if byl:
             self.powiedz(self.t("utrata_lacznosci"), Priorytet.BEZPIECZENSTWO, "lacznosc")
@@ -392,6 +397,9 @@ class Rdzen:
         """Pełny odczyt. Nigdy nie wysyła lokalnych wartości do miksera (kontrakt pkt 1 i 9).
         Jedyne zapisy to ochronne zamknięcia niebezpiecznych dróg (decyzja P02)."""
         self.uzbrojony = False
+        self._suwak_ruch.clear()
+        self._mikrofon_suwak_cel = None
+        self._kaszel_suwak_zamkniety = False
         byl_blokowany = self.zapora.profil_blokuje
         # Pełny odczyt (start, powrót łączności, scena z innego urządzenia)
         # kończy kaszel bez przywracania mikrofonu (decyzja 2).
@@ -441,6 +449,9 @@ class Rdzen:
         self._aktualizuj_liczniki(poczatek_znany=False)
         self._ochronne_zamkniecia()
         self._odswiez_powierzchnie()
+        suma, dol = self.widok.suma(MIKROFON), self.widok.suwak_na_dole(MIKROFON)
+        if suma is not NIEZNANY and dol is not NIEZNANY and suma == dol:
+            self.powiedz(self._opis_mikrofonu_z_suwakiem(), Priorytet.BEZPIECZENSTWO, "mikrofon-suwak")
         return True
 
     def _przelicz_profil(self, oglos: bool = True) -> bool:
@@ -684,23 +695,23 @@ class Rdzen:
     def kroki_wycisz_glosniki(self) -> list[Krok]:
         return [Krok(sciezki.mute_szyny(b), 0) for b in self.u.szyny_glosnikow]
 
-    def _korekta_mikrofonu_db(self) -> float:
+    def _korekta_mikrofonu_db(self, na_dole=False) -> float:
         """Ile decybeli dodać do wysyłki mikrofonu przed suwakiem (rozmowa na
         CUE), żeby rozmówca słyszał go jak na antenie, gdzie wysyłka idzie za
-        suwakiem (Michał 22.10.2026). Suwak na dole albo nieznany: bez korekty."""
+        suwakiem. Suwak na dole albo nieznany: poziom jak przy suwaku w górze."""
         if not self.u.zachowanie.get("mikrofon_w_rozmowie_jak_na_antenie", True):
             return 0.0
-        f = self.widok.fader_db(MIKROFON)
+        f = float("-inf") if na_dole else self.widok.fader_db(MIKROFON)
         if f is NIEZNANY or f == float("-inf"):
-            return 0.0
+            return self.u.zrodla[MIKROFON].suwak_maks_db
         return float(f)
 
     def _jest_rozmowa_cue(self) -> bool:
         cue = self.widok.cue_zbior()
         return cue is not NIEZNANY and bool(cue)
 
-    def _mikrofon_w_rozmowie_db(self, baza: float) -> float:
-        return min(baza + self._korekta_mikrofonu_db(), 10.0)   # wysyłka MR18 najwyżej +10 dB
+    def _mikrofon_w_rozmowie_db(self, baza: float, na_dole=False) -> float:
+        return min(baza + self._korekta_mikrofonu_db(na_dole), 10.0)   # wysyłka MR18 najwyżej +10 dB
 
     def _kroki_dim(self, wl: bool) -> list[Krok]:
         """Przyciszenie przy PFL (/config/solo/dimpfl). Instrukcja MR18, 7.11:
@@ -756,7 +767,7 @@ class Rdzen:
     # model CUE: cel i przejście (plan v20, rozdz. 6 i 7)
     # ======================================================================
     def cel(self, cue: frozenset, mikrofon_na_antenie: bool, cue_przed=None, przywroc=(),
-            na_antene=()) -> Cel:
+            na_antene=(), mikrofon_na_dole=False) -> Cel:
         """Cel wyliczony z potwierdzonego odczytu: kto co słyszy w nowym stanie.
 
         `przywroc`: rozmówcy, którym Main On może wrócić (zwolnione CUE albo
@@ -800,7 +811,7 @@ class Rdzen:
                 baza = u.poziom_bazowy(s, odb)
                 if r in cue:
                     if s == MIKROFON:
-                        p, t = self._wl(self._mikrofon_w_rozmowie_db(baza)), sciezki.TAP_PRE
+                        p, t = self._wl(self._mikrofon_w_rozmowie_db(baza, mikrofon_na_dole)), sciezki.TAP_PRE
                     elif s in cue:
                         p, t = self._wl(baza), sciezki.TAP_PRE
                     elif not z.glos and w.suma(s) is True:
@@ -969,6 +980,10 @@ class Rdzen:
         Zwraca rozmówców, których suwaka nie ściągnięto (trzymany ręką)."""
         trzymane = []
         for r in rozmowcy:
+            if r == MIKROFON:
+                if not self._ustaw_fader_mikrofonu(0.0):
+                    trzymane.append(r)
+                continue
             if self.widok.suwak_na_dole(r) is True:
                 continue
             pasek = self._pasek_zrodla(r)
@@ -993,7 +1008,7 @@ class Rdzen:
                     self.powierzchnia.ustaw_suwak(pasek, 0.0)
         return trzymane
 
-    def _wykonaj_przejscie(self, c: Cel, zakres=None, sciagnij=()) -> WynikPrzejscia:
+    def _wykonaj_przejscie(self, c: Cel, zakres=None, sciagnij=(), fader_mikrofonu=None) -> WynikPrzejscia:
         if self._mikrofon_sprzed is not None:
             # Świadoma zmiana CUE/suwaka zastępuje dawny zamiar powrotu. Nie
             # przywracamy anteny sprzed trzymania po zmianie rozmowy.
@@ -1026,14 +1041,14 @@ class Rdzen:
             # Świadome wyjście z CUE po przerwaniu kaszlu musi zwolnić również
             # zachowany znacznik, zanim zapora sprawdzi Main On rozmówcy.
             self.widok.cue_chwilowe = c.cue
-        wynik = self._wykonaj_przejscie_plan(c, zakres, sciagnij)
+        wynik = self._wykonaj_przejscie_plan(c, zakres, sciagnij, fader_mikrofonu)
         if not wynik.ok and self._mikrofon_sprzed is not None:
             self._przerwij_kaszel()
         elif wynik.ok and self._mikrofon_sprzed is None and self.widok.cue_chwilowe is not None:
             self._zwolnij_nakladke_cue(c.cue)
         return wynik
 
-    def _wykonaj_przejscie_plan(self, c: Cel, zakres=None, sciagnij=()) -> WynikPrzejscia:
+    def _wykonaj_przejscie_plan(self, c: Cel, zakres=None, sciagnij=(), fader_mikrofonu=None) -> WynikPrzejscia:
         zamk = self._plan_zamkniec(c, zakres)
         if zamk:
             self._zamknij(zamk)
@@ -1052,6 +1067,12 @@ class Rdzen:
         trzymane = self._sciagnij_suwaki(sciagnij) if self.stan.polaczony else list(sciagnij)
         if not self.stan.polaczony:
             return WynikPrzejscia(False, "zamkniecia", utrata=True, trzymane=trzymane)
+        # Fader Start: dodatni fader dopiero po potwierdzonych zamknięciach.
+        # Nawet niespójny zastany Main On nie może ominąć ciszy głośników.
+        if fader_mikrofonu is not None:
+            if (self.widok.glosniki_wyciszone() is not True
+                    or not self._ustaw_fader_mikrofonu(fader_mikrofonu)):
+                return WynikPrzejscia(False, "fader", utrata=not self.stan.polaczony)
         otw = self._plan_otwarc(c, zakres)
         if otw and self._rozbrojone():
             # L01: przy utraconym kontrolerze zamknięcia tak, otwarcia nie.
@@ -1331,11 +1352,14 @@ class Rdzen:
     # przełącznik mikrofonu (rozdz. 8, „Co mówi NVDA”)
     # ======================================================================
     def przelacz_mikrofon(self) -> None:
+        self._z_hold_mikrofonu(self._przelacz_mikrofon)
+
+    def _z_hold_mikrofonu(self, akcja) -> None:
         # Hold wykonuje osobny wątek. Zatrzymujemy wyłącznie jego komunikaty
         # do chwili ogłoszenia wyniku mikrofonu, nigdy przejście ani TCP.
         self._hold_przejscie = True
         try:
-            self._przelacz_mikrofon()
+            akcja()
         finally:
             if self._tor_emisji._hold_cel is not None:
                 self._obserwuj_hold()
@@ -1344,10 +1368,12 @@ class Rdzen:
             self.odbierz_emisje()
 
     def _przelacz_mikrofon(self) -> None:
-        if self._mikrofon_sprzed is not None:
+        if self._kaszel is not None or self._kaszel_suwak_zamkniety:
             talkback = self._glosniki_talkback is not None
             self._przerwij_kaszel(oglos=talkback)
-            if not talkback:
+            if talkback:
+                self._ustaw_fader_mikrofonu(0.0)
+            else:
                 self._wylacz_mikrofon()
             return
         stan = self.widok.suma(MIKROFON)
@@ -1379,25 +1405,46 @@ class Rdzen:
             tekst += ", " + opis_fadera(self.u, float("-inf"))
         return tekst
 
-    def _wlacz_mikrofon(self) -> None:
-        if self._rozbrojone():
-            self.powiedz(self.t("mikrofon_nie_wlaczony", powod=self.t("powod_kontroler")),
-                         Priorytet.BEZPIECZENSTWO, "przelacznik")
-            return
+    def _wlacz_mikrofon(self, fader=None) -> None:
+        """Wspólna droga F1 i ręki: zamknięcia, fader, Main On, powroty."""
+        if fader is None:
+            fader = poziom_db_na_float(self.u.zrodla[MIKROFON].suwak_maks_db)
         cue = self.widok.cue_zbior()
-        if cue is NIEZNANY or cue:
-            # Decyzja 6: przełącznik przy dowolnym CUE nie otwiera anteny.
-            self.powiedz(self.t("najpierw_zwolnij_cue"), Priorytet.BEZPIECZENSTWO, "przelacznik")
-            return
-        # Tylko tory mikrofonu i głośniki: najpierw potwierdzone wyciszenie
-        # głośników, potem Main On mikrofonu, potem powroty rozmówców (rozdz. 6a i 7).
-        zakres = self._adresy_mikrofonu() | set(self.widok.adresy_glosnikow())
-        self._zlec_hold(True)  # HOLD_ZAMIAR: przed potwierdzeniami miksera
-        w = self._wykonaj_przejscie(self.cel(frozenset(), True), zakres=zakres)
+        byl_talkback = bool(self._talkback)
+        if self._rozbrojone() or not self.kontroler_polaczony:
+            w = WynikPrzejscia(False, "rozbrojony")
+        elif cue is NIEZNANY or not self._gotowy():
+            w = WynikPrzejscia(False, "nieznany", utrata=not self.stan.polaczony)
+        else:
+            # Bez odtwarzania migawki anteny ani automatycznego powrotu głośników.
+            # Późniejsze puszczenie MUTE nie ma już czego przywracać.
+            if byl_talkback:
+                self._przerwij_kaszel(oglos=False)
+            zakres = None if cue or byl_talkback else (
+                self._adresy_mikrofonu() | set(self.widok.adresy_glosnikow()))
+            self._zlec_hold(True)  # HOLD_ZAMIAR: przed potwierdzeniami miksera
+            c = self.cel(frozenset(), True, cue_przed=cue, przywroc=cue)
+            if self._zamkniecia_chwilowe_zalegle:
+                w = WynikPrzejscia(False, "zamkniecia")
+            else:
+                w = self._wykonaj_przejscie(c, zakres=zakres, fader_mikrofonu=fader)
         if w.ok:
-            self.powiedz(self._komunikat_mikrofonu(), Priorytet.STAN, "przelacznik", dzwiek=True)
+            tekst = self._komunikat_mikrofonu()
+            if cue or byl_talkback:
+                # Michał 30.10.2026: krótko „Mikrofon włączony, koniec rozmowy”,
+                # bez wyliczania stanów rozmówców.
+                k = self.t("koniec_rozmowy")
+                tekst = tekst + Komunikat(", " + k[:1].lower() + k[1:], k.zdarzenia)
+            self.powiedz(self._dopisz_odsluch(tekst, w),
+                         Priorytet.STAN, "przelacznik", dzwiek=True)
             return
-        if not self.stan.polaczony:
+        # Także błąd końcowych dwóch odczytów unieważnia wejście na antenę.
+        # Najpierw zdejmij Main On, dopiero potem opuść fader. Bez Mute-Act.
+        self._zamknij(self.kroki_sumy(MIKROFON, False))
+        self._ustaw_fader_mikrofonu(0.0)
+        if w.etap == "rozbrojony":
+            powod = self.t("powod_kontroler")
+        elif not self.stan.polaczony:
             powod = self.t("powod_brak_lacznosci")
         elif self.widok.glosniki_wyciszone() is not True:
             powod = self.t("powod_glosniki")
@@ -1430,7 +1477,8 @@ class Rdzen:
             if cue is not NIEZNANY:
                 kroki = self._plan_zamkniec(self.cel(cue, False), zakres=self._adresy_mikrofonu())
         wynik = self._zamknij(kroki)
-        if wynik.ok and (self.widok.suma(MIKROFON) is False or not self._gotowy()):
+        fader_ok = self._ustaw_fader_mikrofonu(0.0)
+        if wynik.ok and fader_ok and (self.widok.suma(MIKROFON) is False or not self._gotowy()):
             # Każdy krok potwierdzony odczytem z miksera (także przy stanie NIEZNANY).
             self.powiedz(self._z_mute_act(self.t("mikrofon_stan", stan=self.u.stan_slowo(False, "m"))
                                           .wariant("wylaczony")),
@@ -1778,6 +1826,7 @@ class Rdzen:
             self._zdejmij_solo_kaszlu()
 
     def kaszel_puszczony(self) -> None:
+        self._kaszel_suwak_zamkniety = False
         if self._kaszel is None:
             return
         self._odczyt_krytyczny()
@@ -1992,6 +2041,8 @@ class Rdzen:
         # odczyta odczyt okresowy, który niczego nie otwiera (P02).
         self._dotyk.clear()
         self._suwak_ruch.clear()
+        self._mikrofon_suwak_cel = None
+        self._kaszel_suwak_zamkniety = False
         self._przerwij_kaszel()
         if byl:
             self.powiedz(self.t("kontroler_utracony"), Priorytet.BEZPIECZENSTWO, "kontroler")
@@ -2206,7 +2257,10 @@ class Rdzen:
             return
         # Wejście w CUE: najpierw mikrofon i rozmówca z anteny (decyzje 4 i 5).
         nowe = cue | {r}
-        w = self._wykonaj_przejscie(self.cel(nowe, False, cue_przed=cue), sciagnij=[r])
+        # Cel uwzględnia pozycję po zamknięciach i ściągnięciu mikrofonu,
+        # bez zmiany stanu potwierdzonego przed wykonaniem przejścia.
+        c = self.cel(nowe, False, cue_przed=cue, mikrofon_na_dole=True)
+        w = self._wykonaj_przejscie(c, sciagnij=[MIKROFON, r])
         if not w.ok:
             self._niepowodzenie(w)
             return
@@ -2584,6 +2638,79 @@ class Rdzen:
         else:
             self._dotyk.discard(pasek)
             self._rozbieznosc_zgloszona.discard(pasek)
+            if self._zrodlo_paska(pasek) == MIKROFON and pasek not in self._suwak_ruch:
+                self._ustaw_silniki()  # F1 pod ręką: silnik dogania po jej puszczeniu
+
+    def _opis_mikrofonu_z_suwakiem(self) -> str:
+        tekst = self._komunikat_mikrofonu()
+        f = opis_fadera(self.u, self.widok.fader_db(MIKROFON), self.u.zrodla[MIKROFON].suwak_maks_db)
+        return tekst if not f or tekst.endswith(f) else tekst + ", " + f
+
+    def _ustaw_fader_mikrofonu(self, wartosc: float) -> bool:
+        """DSP działa także pod ręką, silnik nigdy z nią nie walczy.
+
+        Zero i pierwszy krok rozróżniamy dokładnie, bez tolerancji 0,005
+        klienta OSC. Niepotwierdzonej pozycji nie ogłaszamy jako anteny.
+        """
+        pasek = self._pasek_zrodla(MIKROFON)
+        if pasek is not None:
+            self._suwak_ruch.pop(pasek, None)
+        self._mikrofon_suwak_cel = None
+        ok = True
+        dane = {}
+        try:
+            adresy = [sciezki.fader(k) for k in self.u.zrodla[MIKROFON].kanaly]
+            for a in adresy:
+                ok = self._zapis(Krok(a, wartosc)) and ok
+            dane = self.klient.odczytaj_wiele(adresy)
+            for a, v in dane.items():
+                self.stan.potwierdz(a, v, self.zegar())
+                ok = ok and zgodne(v, wartosc) and ((float(v) > 0) == (wartosc > 0))
+        except NaruszenieZapory:
+            ok = False
+        except BrakOdpowiedzi:
+            self._utrata("brak odpowiedzi przy suwaku mikrofonu")
+            ok = False
+        self._ustaw_silniki()
+        # Zamknięcie wolno potwierdzić również bez pełnej synchronizacji.
+        # Nie uzbraja to otwarć ani nie udaje znajomości pozostałych torów.
+        if ok and pasek is not None and pasek not in self._dotyk and self.powierzchnia is not None:
+            self.powierzchnia.ustaw_suwak(pasek, min(float(next(iter(dane.values()))) / self._gora_suwaka(pasek), 1.0))
+        return ok
+
+    def _potwierdz_suwak_mikrofonu(self) -> None:
+        wartosc = self._mikrofon_suwak_cel
+        if wartosc is None:
+            return
+        self._zapewnij_swiezosc()
+        if not self._gotowy():
+            return
+        if wartosc == 0.0:
+            if self._mikrofon_sprzed is not None:
+                self._kaszel_suwak_zamkniety = self._kaszel is not None
+                self._przerwij_kaszel(oglos=True)
+            if self.widok.suma(MIKROFON) is not False:
+                self._wylacz_mikrofon()
+            else:
+                self._ustaw_fader_mikrofonu(0.0)
+            return
+        if self._kaszel is not None or self._kaszel_suwak_zamkniety:
+            # Kaszel ma pierwszeństwo. Korekta głośności nie zdejmuje kaszlu;
+            # tylko zejście na dół unieważnia powrót anteny po puszczeniu.
+            self._ustaw_fader_mikrofonu(wartosc)
+            return
+        if (self.widok.suma(MIKROFON) is not True
+                or self.widok.suwak_na_dole(MIKROFON) is not False):
+            self._wlacz_mikrofon(fader=wartosc)
+            return
+        # Już na antenie: wyłącznie odczyt fadera wysłanego ciągłym ruchem.
+        try:
+            dane = self.klient.odczytaj_wiele([sciezki.fader(k) for k in self.u.zrodla[MIKROFON].kanaly])
+        except BrakOdpowiedzi:
+            self._utrata("brak odpowiedzi po ruchu suwaka mikrofonu")
+            return
+        for a, v in dane.items():
+            self.stan.potwierdz(a, v, self.zegar())
 
     def _gora_suwaka(self, pasek: int) -> float:
         """Wartość fadera MR18 przy suwaku w samej górze: 0 dB (0,75), dla
@@ -2612,6 +2739,14 @@ class Rdzen:
                     self.powiedz(self.t("pary_rozbiezne", nazwa=self._nazwa(zr)), Priorytet.STAN, "suwak")
                 return
             adresy = [sciezki.fader(k) for k in self.u.zrodla[zr].kanaly]
+            if zr == MIKROFON:
+                self._mikrofon_suwak_cel = wartosc
+                self._suwak_ruch[pasek] = self.zegar()
+                if wartosc > 0 and (self.widok.suma(MIKROFON) is not True
+                                    or self.widok.suwak_na_dole(MIKROFON) is not False):
+                    # Ręka podaje zamiar. Dodatni fader nie może wyprzedzić
+                    # zamknięcia CUE i głośników przy niespójnym Main On.
+                    return
         for a in adresy:
             self.zapora.sprawdz(a, wartosc, self.widok)
             self.klient.wyslij(a, wartosc)
@@ -2623,8 +2758,16 @@ class Rdzen:
         for pasek, t in list(self._suwak_ruch.items()):
             if teraz - t < self.zwloka_suwaka:
                 continue
-            del self._suwak_ruch[pasek]
             zr = None if pasek == 9 else self._zrodlo_paska(pasek)
+            if zr == MIKROFON:
+                try:
+                    self._z_hold_mikrofonu(self._potwierdz_suwak_mikrofonu)
+                finally:
+                    self._suwak_ruch.pop(pasek, None)
+                    self._mikrofon_suwak_cel = None
+                self._ustaw_silniki()
+                continue
+            del self._suwak_ruch[pasek]
             if pasek == 9:
                 adresy = [sciezki.MONITOR_POZIOM]
             else:
@@ -2651,8 +2794,6 @@ class Rdzen:
                     return
             if zr in self._rozmowcy():
                 self._po_zmianie_suwaka(zr, przed, byl_w_gorze)
-            elif zr == MIKROFON and self._jest_rozmowa_cue():
-                self._dopasuj_zrodlo(MIKROFON)   # rozmowa na CUE: poziom mikrofonu jak na antenie
             # Suwak na stole stoi tam, gdzie mikser potwierdził (puszczony suwak;
             # dotknięty pomija _ustaw_silniki).
             self._ustaw_silniki()
@@ -2837,6 +2978,9 @@ class Rdzen:
         ochronnie zamykać (P02), nigdy otwierać."""
         reczne = self._suwaki_w_rekach()
         adresy = adresy_krytyczne(self.u)
+        # Fader nie jest przesłanką zapory: obcy ruch nie uruchamia Fader Start.
+        # Odczytujemy go do obserwacji, również przy zgubionym xremote.
+        adresy += [sciezki.fader(k) for k in self.u.zrodla[MIKROFON].kanaly]  # MIKROFON_ODCZYT
         if self._solo_kaszlu is not None:
             adresy += [a for a in self._solo_kaszlu.oczekiwane if a not in adresy]
         self._odczytaj_i_oglos([a for a in adresy if a not in reczne],
@@ -2954,6 +3098,10 @@ class Rdzen:
             if przed.get(klucz) != po[klucz] and po[klucz] is not NIEZNANY:
                 self.powiedz(self.t("z_innego_urzadzenia", opis=self._opis_zmiany(klucz, po[klucz])),
                              Priorytet.BEZPIECZENSTWO if klucz[0] in ("suma", "rozmowca") else Priorytet.STAN)
+        if any(sciezki.fader(k) in zmienione for k in self.u.zrodla[MIKROFON].kanaly):
+            # Obcy fader nie wywołuje Fader Start ani nie jest cofany.
+            self.powiedz(self.t("z_innego_urzadzenia", opis=self._opis_mikrofonu_z_suwakiem()),
+                         Priorytet.STAN, "mikrofon-suwak-obcy")
         if any(a.endswith("/mix/fader") or a == sciezki.MONITOR_POZIOM for a in zmienione):
             self._ustaw_silniki()
         if z_odczytu:

@@ -181,11 +181,16 @@ class TestUDPMostekKontraSymulator(unittest.TestCase):
         self.assertEqual(float(w[sciezki.wysylka(10, 2)]), 0.0, "podsłuch prawego ucha wyłączony")
         self.assertEqual(self.slowa(), ["Mikrofon poza anteną, rozmowa ze słuchaczem"])
 
-        # Przełącznik mikrofonu przy CUE nie otwiera anteny (decyzja 6).
+        # Fader Start przez prawdziwe UDP kończy CUE i otwiera antenę.
         time.sleep(0.1)
         self.r.zglos(("klawisz", "F1_mikrofon"))
-        self.assertEqual(w[sciezki.lr(9)], 0)
-        self.assertEqual(self.slowa(), ["Rozmowa poza anteną, najpierw zwolnij CUE"])
+        self.assertEqual(w[sciezki.lr(9)], 1)
+        self.assertEqual(w[sciezki.tap(9, 1)], sciezki.TAP_POST)
+        self.assertEqual(self.slowa(), ["Mikrofon włączony, koniec rozmowy"])
+        # Osobna rozmowa do dalszego scenariusza zakończenia klawiszem F3.
+        time.sleep(0.1)
+        self.r.zglos(("przycisk", 2, 3))
+        self.slowa()
 
         # Zmiana z innego klienta przez prawdziwe UDP: ogłoszona, nie cofnięta.
         self.inny.wyslij(sciezki.lr(1), 0)

@@ -58,7 +58,7 @@ Tabela dotyczy stanowiska, dla którego powstała scena. Przy pierwszym uruchomi
 
 Tabela połączeń. Każdy wiersz: gniazdo, potem przeznaczenie.
 
-Wejście analogowe 9, XLR: Mikrofon prezentera: Shure SM7B przez Cloudlifter. Gain +32 dB. Phantom 48 V włączony (zasila Cloudliftera).
+Wejście analogowe 9, XLR: Mikrofon prezentera: Shure SM7B przez Cloudlifter. Gain +24 dB. Phantom 48 V włączony (zasila Cloudliftera).
 Wejście analogowe 10, XLR: Męski XLR BlueDrivera-M3, czyli dźwięk od słuchacza. Gain +49,5 dB. Phantom zawsze wyłączony dla tego urządzenia.
 Wejścia analogowe 1 do 8: W tej scenie nieużywane. Kanały DSP 1 do 8 odbierają USB, nie te gniazda.
 Wejścia analogowe 11 do 16 oraz liniowe 17/18: Rezerwa, nie podłączamy źródeł emisyjnych. Tory zamknięte.
@@ -81,7 +81,7 @@ Urządzenia dźwiękowe i stan początkowy
 3. W BAZIE gra tylko muzyka 1, kanały 1/2. Muzyki 2 i 3 mają Main On włączone, ale suwaki na dole. Telefon i Zoom czekają: Main On włączone, suwaki na dole. Mikrofon ma suwak na 0 dB, ale Main On wyłączone.
 4. Słuchacz i Zoom dostają muzykę za suwakiem. Telefon czekający trafia też przez AUX 2 do prawego ucha. Bus 5 ma master 0 dB, nie ma linku 5/6 ani drogi do Main LR lub USB.
 5. Startowe mastery: Bus 1 minus 23 dB, Bus 2 i Bus 6 minus 30 dB, Bus 3/4 oraz Bus 5 zero dB. Poziom PHONES minus 10 dB. To ostrożny start, nie gwarancja bezpiecznej głośności konkretnego wzmacniacza.
-6. Phantom 48 V jest włączony wyłącznie na wejściu 9, dla Shure SM7B przez Cloudlifter. Zapisane +32 dB pasuje do SM7B z Cloudlifterem przy mowie z bliska. Przy innym mikrofonie ustaw gain na słuch, zaczynając od niskiego poziomu, a dla mikrofonu dynamicznego bez Cloudliftera phantom nie jest potrzebny. Przed podłączeniem mikrofonu wstęgowego do wejścia 9 sprawdź wymagania producenta. Nie używaj tam niesymetrycznych przejściówek ani uszkodzonego kabla. Zbalansowany mikrofon dynamiczny na poprawnym kablu XLR znosi 48 V. Wszystkie pozostałe wejścia mają phantom wyłączony. Na wejściu 10, do którego podłączony jest BlueDriver-M3, nigdy nie włączaj phantom.
+6. Phantom 48 V jest włączony wyłącznie na wejściu 9, dla Shure SM7B przez Cloudlifter. Zapisane +24 dB pasuje do SM7B z Cloudlifterem przy mowie z bliska. Przy innym mikrofonie ustaw gain na słuch, zaczynając od niskiego poziomu, a dla mikrofonu dynamicznego bez Cloudliftera phantom nie jest potrzebny. Przed podłączeniem mikrofonu wstęgowego do wejścia 9 sprawdź wymagania producenta. Nie używaj tam niesymetrycznych przejściówek ani uszkodzonego kabla. Zbalansowany mikrofon dynamiczny na poprawnym kablu XLR znosi 48 V. Wszystkie pozostałe wejścia mają phantom wyłączony. Na wejściu 10, do którego podłączony jest BlueDriver-M3, nigdy nie włączaj phantom.
 7. FX1 to Dual Combinator: część A mikrofon, część B telefon. FX2 to Stereo Combinator Zooma. FX3 to limiter na sumie Main LR, FX4 limiter na powrocie Zooma (Bus 3/4). Mikrofon ma ustawienie pod SM7B: filtr dolnozaporowy 79 Hz, korektor (+9 dB przy 65 Hz, −6 dB przy 202 Hz, −3,75 dB przy 590 Hz, półka +15 dB od 8,15 kHz), ekspander i kompresor. Muzyka z USB ma trim −1 dB. Przy innym mikrofonie te nastawy trzeba dostroić na słuch.
 
 Pierwsza kontrola, zanim puścimy dźwięk

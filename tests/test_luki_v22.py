@@ -112,13 +112,16 @@ class TestL02Swiezosc(TestZSymulatorem):
     def test_otwarcie_po_limicie_swiezosci_wymaga_odczytu(self):
         """Inne urządzenie otworzyło rozmowę ze słuchaczem, zgłoszenie zginęło,
         5 s bez odczytu. F1 nie może zdecydować na starym odczycie: najpierw
-        świeży odczyt, który pokazuje CUE, więc mikrofon nie wchodzi na antenę."""
+        świeży odczyt, który pokazuje CUE; Fader Start musi je najpierw zamknąć."""
         self.sym.wartosci[sciezki.tap(9, 1)] = sciezki.TAP_PRE
         self.sym.wartosci[sciezki.wysylka(9, 1)] = POZIOM
         self.zegar.przesun(5.0)
         self.klawisz("F1_mikrofon")
-        self.assertEqual(self.m(sciezki.lr(9)), 0, "mikrofon nie wszedł na antenę przy CUE")
-        self.assertIn("Rozmowa poza anteną, najpierw zwolnij CUE", self.slowa())
+        self.assertEqual(self.m(sciezki.lr(9)), 1)
+        self.assertFalse(self.cue_sym("telefon"))
+        zapisy = self.zapisy()
+        self.assertLess(zapisy.index((sciezki.wysylka(9, 1), 0.0)), zapisy.index((sciezki.lr(9), 1)))
+        self.assertIn("Mikrofon włączony, koniec rozmowy", self.slowa())
 
     def test_brak_odczytu_przy_nieswiezym_to_utrata(self):
         self.zegar.przesun(5.0)

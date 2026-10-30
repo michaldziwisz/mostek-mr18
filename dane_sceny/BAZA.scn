@@ -335,10 +335,10 @@
 /ch/08/automix OFF   0.0
 /ch/09/config "Mikrofon" 0 In09 U09
 /ch/09/preamp 0.0 OFF OFF ON 79.3
-/ch/09/gate ON EXP4 -55.0 60.0 20  126 241 SELF
+/ch/09/gate ON EXP4 -63.0 60.0 20  126 241 SELF
 /ch/09/gate/filter OFF 3.0 990.9
 /ch/09/gate/filter OFF 3.0 990.9
-/ch/09/dyn ON COMP PEAK LOG -6.0 100 3 0.00 0 0.02 63 100 SELF OFF
+/ch/09/dyn ON COMP PEAK LOG -14.0 100 3 8.00 0 0.02 63 100 SELF OFF
 /ch/09/dyn/filter OFF 3.0 990.9
 /ch/09/dyn/filter OFF 3.0 990.9
 /ch/09/insert ON Fx1A
@@ -351,7 +351,7 @@
 /ch/09/eq/2 PEQ 202.3 -6.00 1.0
 /ch/09/eq/3 PEQ 590.2 -3.75 1.0
 /ch/09/eq/4 HShv 8k15 +15.0 0.9
-/ch/09/mix ON +10.0 OFF 0.0000
+/ch/09/mix ON   -oo OFF 0.0000
 /ch/09/mix/01   -oo OFF POST 0.0000
 /ch/09/mix/02   -oo OFF POST
 /ch/09/mix/03   -oo OFF POST 0.0000
@@ -379,9 +379,9 @@
 /ch/10/gate OFF GATE -80.0 60.0 1  502 983 SELF
 /ch/10/gate/filter OFF 3.0 990.9
 /ch/10/gate/filter OFF 3.0 990.9
-/ch/10/dyn ON COMP PEAK LOG -40.0 10 2 0.00 5  50.2 151 100 Bus5 OFF
-/ch/10/dyn/filter OFF 3.0 990.9
-/ch/10/dyn/filter OFF 3.0 990.9
+/ch/10/dyn ON COMP RMS LOG -40.0 10 2 0.00 10  50.2 151 100 Bus5 OFF
+/ch/10/dyn/filter ON HC12 805.4
+/ch/10/dyn/filter ON HC12 805.4
 /ch/10/insert ON Fx1B
 /ch/10/eq ON
 /ch/10/eq/1 PEQ 124.7  0.00 2.0
@@ -997,8 +997,8 @@
 /dca/4/config "" 8
 /dca/4/config "" 8
 /fx/1 CMB2 ON
-/fx/1/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -18.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR ON OFF 100 10 200 ON 5 OFF 0 12 2.5 -20.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0
-/fx/1/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -18.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR ON OFF 100 10 200 ON 5 OFF 0 12 2.5 -20.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0
+/fx/1/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -26.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR ON OFF 100 10 200 ON 5 OFF 0 12 2.5 -20.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0
+/fx/1/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -26.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR ON OFF 100 10 200 ON 5 OFF 0 12 2.5 -20.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0
 /fx/2 CMB ON
 /fx/2/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -18.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 /fx/2/par ON OFF 100 10 200 ON 5 OFF 0 12 1.5 -18.0 0.0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 0.0 0.0 0 GR 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1058,7 +1058,7 @@
 /headamp/06 0.0 OFF
 /headamp/07 0.0 OFF
 /headamp/08 0.0 OFF
-/headamp/09 +32.0 ON
+/headamp/09 +24.0 ON
 /headamp/10 +49.5 OFF
 /headamp/11 0.0 OFF
 /headamp/12 0.0 OFF

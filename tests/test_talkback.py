@@ -48,8 +48,11 @@ class TestTalkback(TestZSymulatorem):
                 self.assertEqual(self.slyszalny(9, b), r in adresaci, (r, b))
                 if r in adresaci:
                     self.assertEqual(self.m(sciezki.tap(9, b)), sciezki.TAP_PRE)
+                    from mostek.konwersje import poziom_float_na_db
+                    fader = float(self.m(sciezki.fader(9)))
+                    korekta = 10.0 if fader == 0.0 else poziom_float_na_db(fader)
                     self.assertAlmostEqual(float(self.m(sciezki.wysylka(9, b))),
-                                           poziom_db_na_float(self.u.poziom_bazowy("mikrofon", r)), places=5)
+                                           poziom_db_na_float(min(10.0, self.u.poziom_bazowy("mikrofon", r) + korekta)), places=5)
 
     def test_telefon_na_antenie_bez_klucza_i_bez_zmian_rozmowcow(self):
         self.przygotuj(antena=True)
@@ -195,11 +198,14 @@ class TestTalkback(TestZSymulatorem):
         inne = self.nietkniete()
         self.wcisnij()
         self.klawisz("F1_mikrofon")
-        self.sprawdz_adresatow()
+        self.assertTrue(self.suma("mikrofon"))
+        self.assertFalse(self.r._talkback)
+        self.assertFalse(self.cue_sym("telefon"))
+        przed = self.mikrofon()
         self.pusc()
-        self.sprawdz_adresatow()
+        self.ten_sam_stan(self.mikrofon(), przed)
         self.ten_sam_stan(self.nietkniete(), inne)
-        self.assertTrue(any("Talkback przerwany" in x for x in self.slowa()))
+        self.assertIn("Mikrofon włączony, koniec rozmowy", self.slowa())
 
     def test_utrata_kontrolera_zamyka_talkback_bez_przywracania(self):
         self.przygotuj(antena=True)

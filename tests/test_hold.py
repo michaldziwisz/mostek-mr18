@@ -150,14 +150,16 @@ class TestHold(TestZSymulatorem):
         self.assertEqual(self.holds(), [])
         self.assertEqual(self.s.polecenia, [])
 
-    def test_cue_i_rozbrojenie_bez_zamiaru(self):
+    def test_cue_konczy_sie_z_hold_rozbrojenie_bez_zamiaru(self):
         self.cue('telefon'); self.slowa()
         self.klawisz('F1_mikrofon'); self.slowa()
-        self.assertEqual(self.holds(), [])
-        self.cue('telefon'); self.slowa()
+        self.assertEqual(self.holds(), ['Hold=1'])
+        self.cue('telefon'); self.tick(0.01); self.slowa()
+        self.assertTrue(self.s.czekaj_na('Hold=0'))
+        przed = self.holds()
         self.r.kontroler_polaczony = False
         self.klawisz('F1_mikrofon'); self.slowa()
-        self.assertEqual(self.holds(), [])
+        self.assertEqual(self.holds(), przed)
 
     def test_komunikaty_koniec_raz_i_zwolnienie_bez_play(self):
         self.klawisz('F1_mikrofon')

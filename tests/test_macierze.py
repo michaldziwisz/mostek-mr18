@@ -63,15 +63,20 @@ class TestMacierzeV20(TestZSymulatorem):
             self.assertEqual(self.m(sciezki.MONITOR_DIMPFL), 0, f"{nazwa}: bez przyciszenia odsłuchu")
         else:
             self.assertEqual(self.m(sciezki.MONITOR_DIMPFL), 0, f"{nazwa}: program bez przyciszenia")
-        # Przełącznik mikrofonu: działa albo zablokowany (macierz „mikrofon_rec”).
-        self.slowa()
-        od = len(self.sym.dziennik)
-        mik = self.suma("mikrofon")
-        if not plan["rec"]:
-            self.klawisz("F1_mikrofon")
-            self.assertEqual(self.zapisy(od), [], f"{nazwa}: przełącznik nic nie zapisał")
-            self.assertEqual(self.slowa(), ["Rozmowa poza anteną, najpierw zwolnij CUE"])
-            self.assertEqual(self.suma("mikrofon"), mik)
+        # Historyczna macierz opisuje tory, nie zachowanie F1. Osobny test
+        # poniżej sprawdza Fader Start bez zmieniania stanu w tej asercji.
+
+    def test_f1_konczy_cue_we_wszystkich_macierzach(self):
+        for nazwa in ("C", "E", "F"):
+            with self.subTest(sytuacja=nazwa):
+                self.tearDown()
+                self.setUp()
+                self.do_sytuacji(nazwa)
+                self.klawisz("F1_mikrofon")
+                self.assertTrue(self.suma("mikrofon"))
+                self.assertFalse(self.cue_sym("telefon"))
+                self.assertFalse(self.cue_sym("zoom"))
+                self.assertEqual(self.naruszenia_miksera(), [])
 
     # --- drogi do sytuacji ---------------------------------------------------
     def do_sytuacji(self, nazwa: str) -> None:

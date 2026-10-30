@@ -56,6 +56,78 @@ POWROT = {"tap_wartosci": "False", "tap_przy_otwartej": "False", "glosniki_przy_
 # nazwa: (plik względem katalogu mostka, tekst oryginalny, tekst mutanta, test).
 # Moduł testów w trybie szybkim: MODUL_TESTU (domyślnie test_niezmienniki).
 MUTANTY_POPRAWEK = {
+    'mikrofon_suwak_zostawia_cue': (
+        'mostek/rdzen.py',
+        '            self._wlacz_mikrofon(fader=wartosc)',
+        '            if self._jest_rozmowa_cue():\n                return  # MUTANT: CUE uniemożliwia Fader Start\n            self._wlacz_mikrofon(fader=wartosc)',
+        'test_podniesienie_konczy_wszystkie_cue',
+    ),
+    'mikrofon_f1_odmawia_cue': (
+        'mostek/rdzen.py',
+        '        byl_talkback = bool(self._talkback)',
+        '        if cue:\n            return  # MUTANT: dawna odmowa F1\n        byl_talkback = bool(self._talkback)',
+        'test_f1_przy_cue_konczy_i_wlacza',
+    ),
+    'mikrofon_otwarcie_przed_cue': (
+        'mostek/rdzen.py',
+        '        zamk = self._plan_zamkniec(c, zakres)',
+        '        if fader_mikrofonu is not None:\n            return WynikPrzejscia(self._otworz(self._plan_otwarc(c, zakres)).ok)  # MUTANT: otwarcia przed zamknięciami\n        zamk = self._plan_zamkniec(c, zakres)',
+        'test_f1_przy_cue_konczy_i_wlacza',
+    ),
+    'mikrofon_bez_wyciszenia_glosnikow': (
+        'mostek/rdzen.py',
+        '        zamk = self._plan_zamkniec(c, zakres)',
+        '        zamk = [k for k in self._plan_zamkniec(c, zakres) if k.adres not in self.widok.adresy_glosnikow()]  # MUTANT',
+        'test_glosniki_przed_faderem_i_main_on',
+    ),
+    'mikrofon_wylaczenie_bez_silnika': (
+        'mostek/rdzen.py',
+        '        fader_ok = self._ustaw_fader_mikrofonu(0.0)',
+        '        fader_ok = True  # MUTANT: silnik i fader nie schodzą na dół',
+        'test_f1_select_silnik_gora_dol',
+    ),
+    'mikrofon_dol_korekta_zero': (
+        'mostek/rdzen.py',
+        '            return self.u.zrodla[MIKROFON].suwak_maks_db',
+        '            return 0.0  # MUTANT: rozmowa cichsza niż pełna antena',
+        'test_poziomy_dol_rowne_dawnym_gora_cue_i_talkback',
+    ),
+    'mikrofon_obcy_fader_otwiera': (
+        'mostek/rdzen.py',
+        '            # Obcy fader nie wywołuje Fader Start ani nie jest cofany.',
+        '            if self.widok.suwak_na_dole(MIKROFON) is False:\n                self._wlacz_mikrofon()  # MUTANT: obca zmiana otwiera antenę\n            # Obcy fader nie wywołuje Fader Start ani nie jest cofany.',
+        'test_obce_podniesienie_nie_wlacza_i_nie_cofa',
+    ),
+    'mikrofon_fader_przed_zamknieciami': (
+        'mostek/rdzen.py',
+        '        zamk = self._plan_zamkniec(c, zakres)',
+        '        if fader_mikrofonu is not None:\n            self._ustaw_fader_mikrofonu(fader_mikrofonu)  # MUTANT: dodatni fader przed CUE\n        zamk = self._plan_zamkniec(c, zakres)',
+        'test_podniesienie_konczy_wszystkie_cue',
+    ),
+    'mikrofon_brak_konca_talkbacku': (
+        'mostek/rdzen.py',
+        '            if byl_talkback:\n                self._przerwij_kaszel(oglos=False)',
+        '            if False:\n                self._przerwij_kaszel(oglos=False)  # MUTANT',
+        'test_podniesienie_przerywa_trzymany_talkback',
+    ),
+    'mikrofon_tolerancja_pierwszego_kroku': (
+        'mostek/rdzen.py',
+        'ok = ok and zgodne(v, wartosc) and ((float(v) > 0) == (wartosc > 0))',
+        'ok = ok and zgodne(v, wartosc)  # MUTANT: pierwszy krok mylony z zerem',
+        'test_niepotwierdzony_pierwszy_krok_nie_otwiera',
+    ),
+    'mikrofon_kaszel_dol_gora': (
+        'mostek/rdzen.py',
+        'self._kaszel_suwak_zamkniety = self._kaszel is not None',
+        'self._kaszel_suwak_zamkniety = False  # MUTANT: trzymany kaszel zapomniany',
+        'test_kaszel_trzymany_dol_gora_nie_otwiera',
+    ),
+    'mikrofon_brak_okresowego_fadera': (
+        'mostek/rdzen.py',
+        '        adresy += [sciezki.fader(k) for k in self.u.zrodla[MIKROFON].kanaly]  # MIKROFON_ODCZYT',
+        '        pass  # MUTANT: zgubione xremote zostawia stary fader',
+        'test_zgubione_obce_zgloszenie_czyta_fader_bez_otwarcia',
+    ),
     "kaszel_solo_zakres": (
         "mostek/rdzen.py",
         "s is not self._solo_kaszlu or adres not in self._solo_mikrofonu()",
@@ -393,6 +465,7 @@ MODUL_TESTU.update({n: "test_tryby_dzwiekow" for n in MUTANTY_POPRAWEK if n.star
 # Dźwięki po kolei (dzwieki_naraz false albo winsound): test w test_dzwieki_naraz.
 MODUL_TESTU["tryb_blad_dzwieku_bez_mowy"] = "test_dzwieki_naraz"
 MODUL_TESTU["suwak_zapas_swiezosci"] = "test_dzwiek_suwaka"
+MODUL_TESTU.update({n: "test_mikrofon_suwak" for n in MUTANTY_POPRAWEK if n.startswith("mikrofon_")})
 
 
 def mutuj(zrodlo: str, regula: str) -> str:

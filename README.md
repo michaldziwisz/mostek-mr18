@@ -1,6 +1,6 @@
 # Mostek MR18
 
-**English summary.** A bridge for radio broadcasting with a Midas MR18 digital mixer and a Behringer X-TOUCH controller (Mackie Control mode), designed for a blind presenter working with the NVDA screen reader. The bridge turns the MR18 into a broadcast desk: CUE talk-back with callers (phone and Zoom) like on D&R radio consoles, cough button, talkback, ducking the caller under the presenter, speaker muting, silence alarm and spoken status through NVDA or short sounds. It also drives the SARA and StationPlaylist playout systems from the desk (play, stop, automation, mix points, hold while the microphone is on air). The MR18 does all the audio mixing; the bridge only sends OSC commands and confirms every change by reading the mixer back. Python, standard library only. User interface and documentation are in Polish. The included scene is set up for a **Shure SM7B microphone with a Cloudlifter** (gain +32 dB, phantom power 48 V on input 9). License: BSD 3-Clause.
+**English summary.** A bridge for radio broadcasting with a Midas MR18 digital mixer and a Behringer X-TOUCH controller (Mackie Control mode), designed for a blind presenter working with the NVDA screen reader. The bridge turns the MR18 into a broadcast desk: CUE talk-back with callers (phone and Zoom) like on D&R radio consoles, cough button, talkback, ducking the caller under the presenter, speaker muting, silence alarm and spoken status through NVDA or short sounds. It also drives the SARA and StationPlaylist playout systems from the desk (play, stop, automation, mix points, hold while the microphone is on air). The MR18 does all the audio mixing; the bridge only sends OSC commands and confirms every change by reading the mixer back. Python, standard library only. User interface and documentation are in Polish. The included scene is set up for a **Shure SM7B microphone with a Cloudlifter** (gain +24 dB, phantom power 48 V on input 9). License: BSD 3-Clause.
 
 ---
 
@@ -29,10 +29,12 @@ W repozytorium są prawdziwe ustawienia stanowiska, dla którego mostek powstał
 
 Scena jest ustawiona pod **Shure SM7B przez Cloudlifter** na wejściu 9:
 
-- wzmocnienie +32 dB, **phantom 48 V włączony** (zasila Cloudliftera),
+- wzmocnienie +24 dB, **phantom 48 V włączony** (zasila Cloudliftera),
 - filtr dolnozaporowy 79 Hz,
 - korektor: +9 dB przy 65 Hz, −6 dB przy 202 Hz, −3,75 dB przy 590 Hz, półka +15 dB od 8,15 kHz,
 - ekspander i kompresor na kanale mikrofonu, Combinator na insercie.
+- suwak mikrofonu w scenie na dole: po wczytaniu mikrofon jest poza anteną (suwak w górze to antena, patrz dokumentacja),
+- przyciszanie słuchacza pod głosem prezentera: detektor RMS, atak 10 ms, filtr klucza dolnoprzepustowy około 800 Hz, żeby stukanie w klawiaturę i oddech nie przyciszały rozmówcy.
 
 **Uwaga przed wczytaniem sceny:** jeśli masz inny mikrofon albo SM7B bez Cloudliftera, sprawdź phantom i wzmocnienie na wejściu 9. Nie podłączaj tam mikrofonu wstęgowego ani niesymetrycznych przejściówek przy włączonym phantomie. Korektor jest dobrany do tego jednego mikrofonu i tego głosu.
 

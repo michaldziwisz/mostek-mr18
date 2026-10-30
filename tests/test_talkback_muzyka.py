@@ -85,9 +85,9 @@ class TestPoziomTalkbacku(BazaMuzyki):
         self.sprawdz_bez_naruszen("talkback z korektą suwaka")
         self.pusc()
 
-    def test_suwak_na_zerze_i_na_dole_bez_korekty(self):
+    def test_suwak_zero_db_bez_korekty_dol_jak_gora(self):
         self.przygotuj(antena=True)
-        for pozycja, db in ((0.75, 0.0), (0.0, 0.0)):
+        for pozycja, db in ((0.75, 0.0), (0.0, 10.0)):
             with self.subTest(pozycja=pozycja):
                 self.suwak_mikrofonu(pozycja)
                 self.wcisnij()

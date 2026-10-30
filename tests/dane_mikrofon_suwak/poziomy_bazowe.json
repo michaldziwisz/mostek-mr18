@@ -1,0 +1,13 @@
+{
+  "_opis": "Poziomy bazowe wysyłek w decybelach. Włączona wysyłka dostaje ten poziom, wyłączona minus nieskończoność. Gdy włączona wysyłka zmieni poziom z innego urządzenia (np. AOSC), mostek przyjmuje nową wartość jako bazową i zapisuje ją tutaj. Wartości startowe są propozycją, do ustawienia na słuch w etapie 4.",
+  "wysylki": {
+    "mikrofon": {"telefon": 0.0, "zoom": 0.0},
+    "telefon": {"zoom": 0.0},
+    "zoom": {"telefon": 0.0},
+    "muzyka1": {"telefon": -6.0, "zoom": -6.0},
+    "muzyka2": {"telefon": -6.0, "zoom": -6.0},
+    "muzyka3": {"telefon": -6.0, "zoom": -6.0}
+  },
+  "podsluch_telefonu_db": 0.0,
+  "klucz_przyciszania_db": 0.0
+}

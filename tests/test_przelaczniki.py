@@ -35,6 +35,7 @@ class TestPrzelacznikMikrofonu(TestZSymulatorem):
         0 dB w trzech czwartych drogi; pozostałe suwaki dalej do 0 dB."""
         from mostek.konwersje import poziom_float_na_db
         self.nacisnij("suwak", 1, 1.0)
+        self.tick(0.6)  # wejście na antenę po potwierdzeniu zamiaru
         self.assertAlmostEqual(float(self.m(sciezki.fader(9))), 1.0, places=4)
         self.assertAlmostEqual(poziom_float_na_db(float(self.m(sciezki.fader(9)))), 10.0, places=2)
         self.nacisnij("suwak", 1, 0.75)
@@ -123,20 +124,21 @@ class TestPrzelacznikMikrofonu(TestZSymulatorem):
         self.assertTrue(self.suma("mikrofon"))
         self.assertEqual(self.slowa(), ["Uwaga, mikrofon może być włączony"])
 
-    def test_przy_cue_przelacznik_nie_otwiera_anteny(self):
-        """Decyzja 6: przy dowolnym CUE przełącznik nie wpuszcza mikrofonu na antenę."""
+    def test_przy_cue_przelacznik_konczy_rozmowe_i_otwiera_antene(self):
+        """F1 i SELECT kończą wszystkie CUE przed wejściem mikrofonu na antenę."""
         for r in ("telefon", "zoom"):
             with self.subTest(rozmowca=r):
                 self.tearDown()
                 self.setUp()
-                self.cue(r)
-                self.slowa()
                 for zdarzenie in (("klawisz", "F1_mikrofon"), ("przycisk", 1, 3)):
+                    self.cue(r)
+                    self.slowa()
                     od = len(self.sym.dziennik)
                     self.nacisnij(*zdarzenie)
-                    self.assertEqual(self.zapisy(od), [])
-                    self.assertFalse(self.suma("mikrofon"))
-                    self.assertEqual(self.slowa(), ["Rozmowa poza anteną, najpierw zwolnij CUE"])
+                    self.assertIn((sciezki.lr(9), 1), self.zapisy(od))
+                    self.assertTrue(self.suma("mikrofon"))
+                    self.assertFalse(self.cue_sym(r))
+                    self.assertEqual(self.slowa(), ["Mikrofon włączony, koniec rozmowy"])
 
     def test_wylaczanie_dziala_zawsze_takze_przy_cue(self):
         """Mikrofon włączony z innego urządzenia w trakcie rozmowy: przełącznik go wyłącza."""
@@ -149,11 +151,14 @@ class TestPrzelacznikMikrofonu(TestZSymulatorem):
         self.assertIn("Mikrofon wyłączony", self.slowa())
         self.assertTrue(self.cue_sym("telefon"), "rozmowa trwa")
 
-    def test_suwak_na_dole_to_nie_wylaczenie(self):
+    def test_f1_podnosi_suwak_z_dolu(self):
         self.sym.wartosci[sciezki.fader(9)] = 0.0
         self.r.synchronizuj()
         self.klawisz("F1_mikrofon")
-        self.assertEqual(self.slowa(), ["Mikrofon włączony, suwak na dole"])
+        self.assertEqual(self.slowa(), ["Mikrofon włączony"])
+        self.assertEqual(self.m(sciezki.fader(9)), 1.0)
+        self.ruch("mikrofon", 0.0)
+        self.assertFalse(self.suma("mikrofon"))
 
 
 class TestMapaPaska(TestZSymulatorem):

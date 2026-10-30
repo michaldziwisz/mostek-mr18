@@ -71,10 +71,11 @@ class TestSuwakKonczyCue(TestZSymulatorem):
                          "słuchacz z CUE nie słyszy Zooma na antenie")
         self.assertEqual(self.slyszy("zoom"), {"muzyka"}, "Zoom nie słyszy rozmowy")
         self.assertEqual(self.antena(), {"muzyka", "zoom"})
-        # Przełącznik mikrofonu dalej zablokowany (zostało CUE słuchacza).
+        # Fader Start kończy również pozostałe CUE słuchacza.
         self.klawisz("F1_mikrofon")
-        self.assertEqual(self.m(sciezki.lr(9)), 0)
-        self.assertEqual(self.slowa(), ["Rozmowa poza anteną, najpierw zwolnij CUE"])
+        self.assertEqual(self.m(sciezki.lr(9)), 1)
+        self.assertFalse(self.cue_sym("telefon"))
+        self.assertEqual(self.slowa(), ["Mikrofon włączony, koniec rozmowy"])
         self.assertEqual(self.naruszenia_miksera(), [])
 
     def test_ostatni_cue_odblokowuje_przelacznik_mikrofonu(self):

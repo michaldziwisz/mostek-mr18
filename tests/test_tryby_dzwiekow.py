@@ -207,12 +207,14 @@ class TestTrybDzwieki(ZTrybem):
         self.assertEqual(self.dzwieki_i_slowa(), (["glosniki_graja"], []))
 
     def test_odmowa_dzwiek_i_mowa_z_powodem(self):
-        self.cue("telefon")
-        self.slowa()
+        self.sym.awarie.ignoruj_zapis = {sciezki.mute_szyny(6)}
         self.klawisz("F1_mikrofon")
-        self.assertEqual(self.dzwieki_i_slowa(), (["odmowa"], ["Rozmowa poza anteną, najpierw zwolnij CUE"]))
+        self.assertEqual(self.dzwieki_i_slowa(), (["odmowa"], ["Mikrofon nie włączony, głośniki niewyciszone, mikrofon zamknięty"]))
 
     def test_ostrzezenie_alarm_i_mowa(self):
+        self.ustaw_mikser({sciezki.fader(9): 0.0})  # spójny powrót bez osobnego ostrzeżenia
+        self.r.synchronizuj()
+        self.slowa()
         self.sym.awarie.rozlaczony = True
         self.tick()
         d, s = self.dzwieki_i_slowa()
@@ -302,7 +304,7 @@ class TestTrybMowa(ZTrybem):
         self.cue("telefon")
         self.assertEqual(self.dzwieki_i_slowa(), ([], ["Mikrofon poza anteną, rozmowa ze słuchaczem"]))
         self.klawisz("F1_mikrofon")
-        self.assertEqual(self.dzwieki_i_slowa(), ([], ["Rozmowa poza anteną, najpierw zwolnij CUE"]))
+        self.assertEqual(self.dzwieki_i_slowa(), ([], ["Mikrofon włączony, koniec rozmowy"]))
 
 
 # =============================================================================
@@ -478,6 +480,7 @@ class TestF5(ZTrybem):
     tryb = Tryb.DZWIEKI
 
     def test_brak_komunikatu(self):
+        self.r._ostatni = None  # synchronizacja mogła już ogłosić niespójny suwak
         self.klawisz("F5_ostatni_komunikat")
         self.assertEqual(self.dzwieki_i_slowa(), ([], ["Brak komunikatu do powtórzenia"]))
 
@@ -503,11 +506,11 @@ class TestF5(ZTrybem):
             self.assertEqual(self.slowa(), ["Rozmowa poza anteną ze słuchaczem"])
 
     def test_powtarza_ostrzezenie(self):
-        self.cue("telefon")
+        self.sym.awarie.ignoruj_zapis = {sciezki.mute_szyny(6)}
         self.klawisz("F1_mikrofon")
         self.slowa()
         self.klawisz("F5_ostatni_komunikat")
-        self.assertEqual(self.dzwieki_i_slowa(), ([], ["Rozmowa poza anteną, najpierw zwolnij CUE"]))
+        self.assertEqual(self.dzwieki_i_slowa(), ([], ["Mikrofon nie włączony, głośniki niewyciszone, mikrofon zamknięty"]))
 
     def test_f5_przy_stanie_nieznanym_bez_odczytu(self):
         self.klawisz("F1_mikrofon")
