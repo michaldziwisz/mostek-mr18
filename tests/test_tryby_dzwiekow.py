@@ -607,11 +607,21 @@ class WolneDzwieki:
 
 
 class MowaZCzasem:
-    def __init__(self, os_czasu):
+    """Atrapa mowy z osią czasu. `bramka_na` zatrzymuje wątek mowy na podanym
+    tekście, aż test wywoła `wolnij` — dzięki temu kolejne komunikaty trafiają
+    do kolejki naraz, a nie zależą od tego, czy wątek zdążył pobrać poprzedni."""
+
+    def __init__(self, os_czasu, bramka_na=None):
         self.os = os_czasu
+        self.bramka_na = bramka_na
+        self.wszedl = threading.Event()
+        self.wolnij = threading.Event()
 
     def mow(self, tekst):
         self.os.append(("mowa", tekst, time.monotonic()))
+        if self.bramka_na is not None and tekst == self.bramka_na:
+            self.wszedl.set()
+            self.wolnij.wait(5)
 
 
 class TestKolejnosc(unittest.TestCase):
@@ -698,20 +708,23 @@ class TestKolejnosc(unittest.TestCase):
 
     def test_nowszy_stan_zastepuje_przerwany(self):
         os_czasu = []
-        k = KolejkaMowy(MowaZCzasem(os_czasu), alarm=None, dzwieki=WolneDzwieki(0.4, os_czasu)).start()
+        wyjscie = MowaZCzasem(os_czasu, bramka_na="A")
+        k = KolejkaMowy(wyjscie, alarm=None, dzwieki=WolneDzwieki(0.4, os_czasu)).start()
         try:
             k.powiedz("A", Priorytet.STAN, "x", dzwieki=["a"], mow=True)
-            for _ in range(100):
-                if os_czasu:
-                    break
-                time.sleep(0.01)
+            # Wątek mowy stoi w mow("A"), więc B i Uwaga trafiają do kolejki
+            # naraz. Bez tej bramki wątek mógł zdążyć pobrać B przed dodaniem
+            # Uwagi i stop() ucinał nieusłyszane ostrzeżenie.
+            self.assertTrue(wyjscie.wszedl.wait(5), "A nie dotarło do mowy")
             k.powiedz("B", Priorytet.STAN, "x", dzwieki=["b"], mow=True)
             k.powiedz("Uwaga", Priorytet.BEZPIECZENSTWO, "u", mow=True)
+            wyjscie.wolnij.set()
             for _ in range(200):
                 if ("mowa", "B") in [(e[0], e[1]) for e in os_czasu]:
                     break
                 time.sleep(0.02)
         finally:
+            wyjscie.wolnij.set()
             k.stop()
         mowa = [e[1] for e in os_czasu if e[0] == "mowa"]
         # A mówione razem ze swoim dźwiękiem (20.10.2026), więc nie wraca do
