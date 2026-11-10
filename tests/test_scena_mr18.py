@@ -2,11 +2,13 @@
 import contextlib
 import io
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Callable
 import socket
 import tempfile
 import threading
+import time
 import unittest
 import sys
 from unittest.mock import patch
@@ -50,6 +52,9 @@ class Serwer:
         self.pakiety = []
         self.pomin: str | None = None
         self.zmien: str | None = None
+        # Jednorazowe opóźnienie odpowiedzi dla wskazanego węzła: wymusza
+        # ponowienie w Polaczenie.pytaj() bez zmiany kodu produktu.
+        self.opoznij: str | None = None
         self.przed_zapisem: Callable[[], None] | None = None
         self.watek = threading.Thread(target=self.run)
         self.watek.start()
@@ -70,7 +75,13 @@ class Serwer:
                 if zapis and self.zmien and (path == self.zmien or (path == '/' and args[0].startswith(self.zmien + ' '))):
                     # Odtwarzalna awaria: mikser nie przyjmuje węzła.
                     continue
+                opoznienie = self.opoznij
+                trafienie = opoznienie is not None and path == '/node' and args[0] == opoznienie
                 for a, t, v in self.model.respond(path, typ, args):
+                    if trafienie:
+                        # Raz, celowo dłużej niż timeout klienta w tym teście.
+                        self.opoznij = None
+                        time.sleep(.35)
                     self.sock.sendto(pack(a, v, t), peer)
 
     def close(self):
@@ -123,14 +134,22 @@ class ScenaMR18(unittest.TestCase):
         r = self.wczytaj()
         self.assertTrue(r['ok'], r)
         self.assertEqual(r['zgodne'], 693)
-        self.assertEqual(len([x for x in self.srv.pakiety if x[0] == '/']), 693)
+        # Zapis tekstowy idzie jako komendy '/', po jednej na węzeł; liczymy
+        # zbiór węzłów, bo ponowienie dokłada powtórkę tego samego węzła.
+        wyslane = Counter(a[0].split(maxsplit=1)[0].lstrip('/') for sciezka, typ, a in self.srv.pakiety if sciezka == '/')
+        self.assertEqual(set(wyslane), {w.lstrip('/') for w in self.wezly})
+        self.assertEqual(min(wyslane.values(), default=0), 1)
 
     def test_factory_kopia_bajt_w_bajt(self):
         self.assertEqual(self.c.xinfo()[2], 'MR18')
         p = s.kopia(self.c, self.dir, self.wezly, self.schema)
         self.assertEqual(p.read_bytes(), START)
         self.assertEqual(self.srv.zapisy(), [])
-        self.assertEqual(len([p for p in self.srv.pakiety if p[0] == '/node']), 693)
+        # Zbiór węzłów, nie suma pakietów: ponowienie po timeoucie dokłada
+        # pakiet tego samego węzła i suma 694 nie znaczyłaby żadnej wady.
+        wg_wezla = Counter(a[0] for sciezka, typ, a in self.srv.pakiety if sciezka == '/node')
+        self.assertEqual(set(wg_wezla), {w.lstrip('/') for w in self.wezly})
+        self.assertEqual(min(wg_wezla.values(), default=0), 1)
 
     def test_zapis_dopiero_po_kompletnej_kopii(self):
         stan_przy_zapisie = []
@@ -176,7 +195,30 @@ class ScenaMR18(unittest.TestCase):
         self.assertFalse(r['ok'])
         self.assertEqual(r['zgodne'], 692)
         self.assertEqual([w['wezel'] for w in r['rozbieznosci']], ['/ch/10/dyn'])
-        self.assertEqual(len([p for p in self.srv.pakiety if p[0] == '/node']), 1386)
+        # Liczymy węzły, nie sumę pakietów: kopia i weryfikacja czytają każdy
+        # węzeł raz, ale Polaczenie.pytaj() ponawia wysyłkę, gdy odpowiedź
+        # symulatora nie zmieści się w timeout. Spóźnienie planisty dawało
+        # wtedy jeden pakiet więcej i sumę 1387 zamiast 1386, bez żadnej wady.
+        wg_wezla = Counter(a[0] for sciezka, typ, a in self.srv.pakiety if sciezka == '/node')
+        self.assertEqual(set(wg_wezla), {w.lstrip('/') for w in self.wezly})
+        self.assertEqual(sorted({n for n, ile in wg_wezla.items() if ile < 2}), [])
+
+    def test_spozniona_odpowiedz_daje_powtorke_bez_braku_wezla(self):
+        """Spóźnienie ponad timeout to dodatkowy pakiet, nie brak odczytu.
+
+        Ten test pilnuje mechanizmu, przez który poprzednia asercja sumy 1386
+        padała raz na kilka przebiegów: Polaczenie.pytaj() ponawia zapytanie,
+        gdy odpowiedź nie zmieści się w timeout. Wynik ma być ten sam odczyt,
+        a nie brak węzła.
+        """
+        self.srv.opoznij = 'ch/10/dyn'
+        r = self.wczytaj()
+        self.assertTrue(r['ok'], r)
+        self.assertEqual(r['zgodne'], 693)
+        wg_wezla = Counter(a[0] for sciezka, typ, a in self.srv.pakiety if sciezka == '/node')
+        self.assertEqual(set(wg_wezla), {w.lstrip('/') for w in self.wezly})
+        self.assertEqual(wg_wezla['ch/10/dyn'], 3)
+        self.assertEqual(sum(1 for ile in wg_wezla.values() if ile < 2), 0)
 
     def test_kopia_nigdy_nie_nadpisuje(self):
         with patch.object(s, 'datetime') as d:
