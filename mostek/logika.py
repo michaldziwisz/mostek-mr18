@@ -12,7 +12,7 @@ anteną (CUE) albo jest na antenie. Stan wynika wyłącznie z odczytu MR18:
   * CUE rozmówcy R: wysyłka mikrofonu do szyny R otwarta i pobierana przed
     suwakiem (punkt pobrania PRE). Mikrofon jest w każdej rozmowie, więc to
     jest znacznik rozmowy niezależny od odsłuchu w słuchawkach.
-  * na antenie: bez CUE, Main On włączone, suwak powyżej progu z ustawień.
+  * na antenie: bez CUE, Main On włączone, suwak rozmówcy powyżej zera.
   * czeka: bez CUE i nie na antenie.
 
 Klucz przyciszania (Bus 5, plan v22, rozdz. 8, „Mechanizmy z konsolet D&R”,
@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from . import sciezki
+from . import odsluch
 from .konwersje import poziom_db_na_float, poziom_float_na_db
 from .stan import NIEZNANY, StanMiksera
 from .ustawienia import Ustawienia
@@ -217,13 +218,22 @@ class Widok:
         return poziom_float_na_db(wart[0])
 
     def suwak_w_gorze(self, zr: str):
-        """Suwak powyżej progu „na antenie” z pliku ustawień (plan, rozdz. 7)."""
+        """Rozmówca od pierwszego dodatniego kroku; pozostałe źródła według progu."""
         db = self.fader_db(zr)
         if db is NIEZNANY:
             return NIEZNANY
+        if self.u.zrodla[zr].odbiorca is not None:
+            wart = [self._w(sciezki.fader(k)) for k in self.u.zrodla[zr].kanaly]
+            # Tolerancja poziomu nie może zrównać zera z pierwszym krokiem.
+            if any(v is NIEZNANY or not 0 <= v <= 1 for v in wart):
+                return NIEZNANY
+            return wszystkie(v > 0 for v in wart)
         return db > self.u.prog_suwaka_db
 
     def suwak_na_dole(self, zr: str):
+        if self.u.zrodla[zr].odbiorca is not None:
+            gora = self.suwak_w_gorze(zr)
+            return NIEZNANY if gora is NIEZNANY else not gora
         db = self.fader_db(zr)
         if db is NIEZNANY:
             return NIEZNANY
@@ -295,7 +305,7 @@ class Widok:
 
     def na_antenie(self, zr: str):
         """Czy źródło jest w programie: mikrofon i muzyka przez Main On,
-        rozmówca przez Main On i suwak powyżej progu, bez CUE."""
+        rozmówca przez Main On i suwak powyżej zera, bez CUE."""
         if zr in self.rozmowcy():
             s = self.stan_rozmowcy(zr)
             return NIEZNANY if s is NIEZNANY else s == ANTENA
@@ -561,6 +571,10 @@ class Zapora:
         raise NaruszenieZapory(opis + (f" ({szczegol})" if szczegol else ""), regula)
 
     def sprawdz(self, adres: str, wartosc, widok: Widok) -> None:
+        if odsluch.aktywny(self.u) and odsluch.narusza(widok, adres, wartosc):
+            raise NaruszenieZapory(self.u.tekst("odsluch_niepotwierdzony"))
+        if adres.startswith(("/fxsend/", "/routing/aux/")):
+            raise NaruszenieZapory(self.u.tekst("odsluch_niepotwierdzony"))
         # Indeks sceny jest w rejestrze odczytu, lecz nigdy nie wolno go zapisać.
         if "sciezka_tylko_do_odczytu" not in self.wylaczone and regula_sciezka_tylko_do_odczytu(adres):
             self._odrzuc("sciezka_tylko_do_odczytu", adres)
@@ -587,8 +601,10 @@ class Zapora:
             kanal, szyna = int(czesci[1]), int(czesci[3])
             zr = self._kanal_zrodla(kanal)
             if float(wartosc) > 0.0:
-                if szyna in sciezki.SZYNY_FX:
+                if szyna in sciezki.SZYNY_FX and not (odsluch.aktywny(self.u) and szyna == odsluch.SEND):
                     raise NaruszenieZapory("wysyłki do FX są zamknięte w wariancie bazowym")
+                if szyna == odsluch.SEND and self.profil_blokuje:
+                    raise NaruszenieZapory(self.u.tekst("odsluch_niepotwierdzony"))
                 for odb in self.u.odbiorcy.values():
                     if zr == odb.wlasne_zrodlo and szyna in odb.szyny:
                         raise NaruszenieZapory(f"{odb.nazwa} nie może wracać do siebie (szyna {szyna})")
@@ -778,6 +794,8 @@ def regula_tap_wartosci(u: Ustawienia, kanal: int, szyna: int, wartosc, zr) -> b
     """Prawda = naruszenie. Tylko PRE albo POST (lista X AIR [43]), tylko szyny
     rozmówców, muzyka zawsze za suwakiem. Do klucza przyciszania (Bus 5) tylko
     mikrofon i Zoom, zawsze przed suwakiem (plan v22)."""
+    if odsluch.aktywny(u) and szyna == odsluch.SEND:
+        return not (zr is not None and kanal <= 10 and int(wartosc) == sciezki.TAP_POST)
     if zr is not None and szyna == u.szyna_klucza:
         return not (zr in u.zrodla_klucza and int(wartosc) == sciezki.TAP_PRE)
     szyny_rozmowcow = {s for o in u.odbiorcy.values() for s in o.szyny}
@@ -836,7 +854,7 @@ def sprawdz_profil(u: Ustawienia, widok: Widok) -> list[Naruszenie]:
                 wynik.append(Naruszenie("mikrofon w głośnikach", True))
     for k in glosy:
         for b in sciezki.SZYNY_FX:
-            if poziom(sciezki.wysylka(k, b)) > 0:
+            if poziom(sciezki.wysylka(k, b)) > 0 and not (odsluch.aktywny(u) and b == odsluch.SEND and k != 9):
                 wynik.append(Naruszenie(f"kanał {k} wysyła do efektów", True))
         if w(sciezki.dca(k)) not in (0, NIEZNANY) or w(sciezki.grupa_mute(k)) not in (0, NIEZNANY):
             wynik.append(Naruszenie(f"kanał {k} w DCA albo grupie wyciszeń", True))
@@ -860,6 +878,8 @@ def sprawdz_profil(u: Ustawienia, widok: Widok) -> list[Naruszenie]:
         elif zrodlo_usb == sciezki.USB_ZRODLO_SZYNA[kb]:
             wynik.append(Naruszenie(f"wyjście USB {wy} przenosi klucz przyciszania (Bus {kb})", True))
     wynik += _profil_klucza(u, widok)
+    if odsluch.aktywny(u) and not odsluch.zgodny(widok):
+        wynik.append(Naruszenie(u.tekst("odsluch_niepotwierdzony"), True))
     for para in u.profil.get("linki_kanalow", []):
         if w(sciezki.chlink(para)) == 0:
             wynik.append(Naruszenie(f"kanały {para} i {para + 1} bez linku", False))
@@ -1006,6 +1026,8 @@ def wszystkie_adresy_odczytu(u: Ustawienia) -> list[str]:
     a += [sciezki.MONITOR_ZRODLO, sciezki.MONITOR_TRYB_KANALOW, sciezki.MONITOR_DIMPFL,
           sciezki.MONITOR_DIMATT, sciezki.MONITOR_POZIOM, sciezki.SCENA_INDEKS]
     a.append(sciezki.SOLO_MAIN_LR)    # solo Main LR przy CUE (Michał 22.10.2026)
+    if odsluch.aktywny(u):
+        a += odsluch.adresy(u)
     return list(dict.fromkeys(a))
 
 
@@ -1036,4 +1058,6 @@ def adresy_krytyczne(u: Ustawienia) -> list[str]:
     # Wszystkie wejścia klucza przyciszania (L05): także obce, żeby odczyt
     # okresowy zamknął je, gdy zgłoszenie /xremote zginęło.
     a += sciezki.wejscia_szyny(u.szyna_klucza)
+    if odsluch.aktywny(u):
+        a += odsluch.adresy(u) + [sciezki.MONITOR_ZRODLO, sciezki.MONITOR_TRYB_KANALOW]
     return list(dict.fromkeys(a))

@@ -20,7 +20,7 @@ Michał zaakceptował odsłuch obu plików sygnałów talkbacku; pliki i generat
 
 Mikrofon, telefon i Zoom na antenie zatrzymują automatyczne uruchomienie następnego utworu, również w automiksie. Bieżący utwór gra do końca. Wyłączenie mikrofonu nie zwalnia wstrzymania, dopóki telefon albo Zoom pozostaje na antenie. Nie dotyczy to StationPlaylist.
 
-Telefon i Zoom blokują automat tylko przy włączonym Main On, suwaku powyżej progu anteny (domyślnie minus 50 dB) i bez CUE. Suwak na dole albo CUE nie blokuje. Wejście suwakiem z CUE i zmiany z innego programu są rozpoznawane przy najbliższej obserwacji miksera, bez naciskania F1. Mikrofon liczy się jak wcześniej przez Main On, także gdy jego suwak jest na dole.
+Telefon i Zoom blokują automat tylko przy włączonym Main On, suwaku choć o krok powyżej samego dołu i bez CUE. Suwak na dole albo CUE nie blokuje. Wejście suwakiem z CUE i zmiany z innego programu są rozpoznawane przy najbliższej obserwacji miksera, bez naciskania F1. Mikrofon liczy się jak wcześniej przez Main On, także gdy jego suwak jest na dole.
 
 Wstrzymanie znika dopiero po zejściu ostatniej osoby z anteny. Kaszel i talkback nie zwalniają go chwilowo. Brak pewności co do stanu źródła również nie pozwala zwolnić wstrzymania. Jeśli utwór już się skończył, następny uruchamia się klawiszem Następny; mostek nie wysyła sam Play ani Skip.
 

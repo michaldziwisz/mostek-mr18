@@ -120,6 +120,10 @@ REJESTR: dict[str, OpisSciezki] = {
                     "/meters/5 = wszystkie wyjścia (6 aux, LR, 16 P16, 18 USB, słuchawki)",
                     "PROTO 1.5 (wiersze 31-37, 65-67, 77-84, 117-121); AOSC wiersz 1599 "
                     "(Main LR: /meters/5, bajty 16 i 18)"),
+        OpisSciezki("/fxsend/3/mix/on", "i", "master Send3, tylko kontrola sceny", "Odczyt MR18 03.11.2026, bramka AUX34"),
+        OpisSciezki("/fxsend/3/mix/fader", "f", "poziom mastera Send3, tylko kontrola sceny", "Odczyt MR18 03.11.2026, bramka AUX34"),
+        OpisSciezki("/routing/aux/{kk}/src", "i", "źródło AUX, tylko kontrola sceny", "Schemat MR18 i odczyt AUX34 03.11.2026"),
+        OpisSciezki("/routing/aux/{kk}/pos", "i", "punkt wyjścia AUX, tylko kontrola sceny", "Schemat MR18 i odczyt AUX34 03.11.2026"),
     )
 }
 
@@ -372,12 +376,14 @@ _ZAKRES_DOMYSLNY = {
     "fx": frozenset(str(n) for n in range(1, 5)),
 }
 _ZAKRES_WZORU = {
+    "/routing/aux/{kk}/src": {"kk": _dwucyfrowe(1, 6)},
+    "/routing/aux/{kk}/pos": {"kk": _dwucyfrowe(1, 6)},
     "/-stat/solosw/{kk}": {"kk": _dwucyfrowe(1, 16) | _dwucyfrowe(40, 45) | {"50"}},
     "/routing/usb/{kk}/src": {"kk": _dwucyfrowe(1, 18)},
     "/config/chlink/{para}": {"para": frozenset(f"{p}-{p + 1}" for p in range(1, 16, 2))},
     "/config/buslink/{para}": {"para": frozenset(f"{p}-{p + 1}" for p in (1, 3, 5))},
-    "/rtn/{fx}/mix/{ss}/level": {"ss": _dwucyfrowe(1, 6)},
-    "/rtn/aux/mix/{ss}/level": {"ss": _dwucyfrowe(1, 6)},
+    "/rtn/{fx}/mix/{ss}/level": {"ss": _dwucyfrowe(1, 6) | {"09"}},
+    "/rtn/aux/mix/{ss}/level": {"ss": _dwucyfrowe(1, 6) | {"09"}},
 }
 
 

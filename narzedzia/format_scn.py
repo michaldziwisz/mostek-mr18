@@ -278,4 +278,11 @@ def stan_mostka(rows: dict, konwersje) -> dict[str, object]:
             state[path + '/on'], state[path + '/keysrc'] = boolean[v[0]], key.index(v[12])
         elif re.fullmatch(r'/routing/usb/\d\d', path):
             state[path + '/src'] = src.index(v[0])
+        elif re.fullmatch(r'/routing/aux/\d\d', path):
+            state[path + '/src'] = src.index(v[0])
+            if v[1] == 'POST':
+                state[path + '/pos'] = 10
+        elif path == '/fxsend/3/mix':
+            state[path + '/on'] = boolean[v[0]]
+            state[path + '/fader'] = konwersje.poziom_db_na_float(num(v[1]))
     return state

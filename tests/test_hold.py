@@ -476,13 +476,13 @@ class TestHoldRozmowcow(TestZSymulatorem):
                 self.ruch(zr, 0); self.slowa()
                 self.assertEqual(self.holds(), ['Hold=1', 'Hold=0'])
 
-    def test_prog_anteny_z_ustawien(self):
+    def test_rozmowcy_od_dolu_niezaleznie_od_progu_ustawien(self):
         from mostek.konwersje import poziom_db_na_float
         self.u.zachowanie['prog_suwaka_na_antenie_db'] = -30.0
         for zr in ('telefon', 'zoom'):
             with self.subTest(zr=zr):
                 self.rozmowca(zr, poziom=poziom_db_na_float(-31)); self.slowa()
-                self.assertFalse(self.s.hold)
+                self.assertTrue(self.s.hold)
                 self.rozmowca(zr, poziom=poziom_db_na_float(-29)); self.slowa()
                 self.assertTrue(self.s.hold)
                 self.rozmowca(zr, poziom=0); self.slowa()

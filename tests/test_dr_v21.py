@@ -107,12 +107,12 @@ class TestSuwakKonczyCue(TestZSymulatorem):
         self.assertFalse(self.cue_sym("zoom"))
         self.assertEqual(self.antena(), {"muzyka", "zoom"})
 
-    def test_suwak_ponizej_progu_nie_konczy_cue(self):
+    def test_suwak_ponizej_dawnego_progu_konczy_cue(self):
         self.cue("telefon")
         self.slowa()
-        self.ruch("telefon", 0.05)          # poniżej progu -50 dB
-        self.assertTrue(self.cue_sym("telefon"))
-        self.assertEqual(self.m(sciezki.lr(10)), 0)
+        self.ruch("telefon", 0.05)          # decyzja 09.11: każdy dodatni krok
+        self.assertFalse(self.cue_sym("telefon"))
+        self.assertEqual(self.m(sciezki.lr(10)), 1)
 
     def test_niepelne_przejscie_bez_main_on(self):
         self.cue("telefon")
@@ -334,7 +334,7 @@ class TestLiczniki(TestZSymulatorem):
         self.klawisz("F2_status")
         tekst = self.slowa()[0]
         self.assertTrue(tekst.startswith("Mikrofon na antenie od 2 minut 11 sekund. "
-                                         "Słuchacz na antenie od 1 minuty 30 sekund. "
+                                         "Słuchacz na antenie od 1 minuty 31 sekund. "
                                          "Zoom czeka od 2 minut 11 sekund."), tekst)
 
     def test_po_starcie_poczatek_nieznany_bez_czasu(self):

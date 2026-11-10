@@ -232,6 +232,8 @@ class Rdzen:
         self._kaszel: dict | None = None
         self._solo_kaszlu: SoloKaszlu | None = None
         self._zapisuje_solo_kaszlu = False
+        from .odsluch import Odsluch
+        self.odsluch_aux = Odsluch(self)
         self._talkback: set[str] = set()
         self._mikrofon_sprzed: dict | None = None
         # Rozmówcy, którym trzymany talkback przyciszył muzykę w powrocie
@@ -448,6 +450,7 @@ class Rdzen:
         # Po starcie i po powrocie łączności nie wiadomo, od kiedy trwa stan.
         self._aktualizuj_liczniki(poczatek_znany=False)
         self._ochronne_zamkniecia()
+        self.odsluch_aux.uzgodnij(tylko_zamknij=True)
         self._odswiez_powierzchnie()
         suma, dol = self.widok.suma(MIKROFON), self.widok.suwak_na_dole(MIKROFON)
         if suma is not NIEZNANY and dol is not NIEZNANY and suma == dol:
@@ -538,6 +541,14 @@ class Rdzen:
     # zapis i sekwencje
     # ======================================================================
     def _zapis(self, krok: Krok) -> bool:
+        # Solo nie jest otwarciem emisyjnym w czy_otwiera(). W opt-in chronimy
+        # również lokalny odsłuch, niezależnie od nazwy sekwencji _zamknij.
+        from .odsluch import aktywny
+        if (aktywny(self.u) and self._rozbrojone()
+                and krok.adres.startswith('/-stat/solosw/') and krok.wartosc == 1):
+            raise NaruszenieZapory(self.t("kontroler_otwieranie"))
+        if not self.odsluch_aux.przed(krok):
+            raise NaruszenieZapory(self.t("odsluch_niepotwierdzony"))
         # Jawne polecenie odsłuchu (także OFF -> OFF) unieważnia migawkę.
         if (self._solo_kaszlu is not None and not self._zapisuje_solo_kaszlu
                 and krok.adres.startswith("/-stat/solosw/")):
@@ -682,6 +693,9 @@ class Rdzen:
         -42 dB wobec LR, solo Zooma i muzyki -4 dB), więc na czas rozmowy
         PFL dostaje muzyka, która jest na antenie (Main On). Po rozmowie PFL
         muzyki wyłączony. Antena bez zmian."""
+        from .odsluch import aktywny
+        if aktywny(self.u):
+            return []  # Program już w AUX; ręcznego PFL muzyki nie kasujemy.
         wl_cue = bool(cue) and self.u.zachowanie.get("program_w_sluchawkach_przy_cue", True)
         kroki: list[Krok] = []
         for zr in self.widok.muzyka():
@@ -732,8 +746,13 @@ class Rdzen:
         for zr in [MIKROFON] + self._rozmowcy():
             kroki += self.kroki_pfl(zr, bool(cue) and (zr == MIKROFON or zr in cue))
         kroki += self.kroki_solo_lr(False) + self.kroki_muzyki_przy_cue(cue)
-        if cue:
-            kroki.append(Krok(sciezki.MONITOR_ZRODLO, sciezki.ZRODLO_LRPFL))
+        from .odsluch import aktywny
+        if aktywny(self.u):
+            self.odsluch_aux.program_lr = False
+            # CUE bez domieszki LR, zakończenie przywraca stereo programu.
+            kroki.append(Krok(sciezki.MONITOR_ZRODLO, sciezki.ZRODLO_OFF if cue else sciezki.ZRODLO_LR))
+        elif cue:
+            kroki.append(Krok(sciezki.MONITOR_ZRODLO, sciezki.ZRODLO_OFF if aktywny(self.u) else sciezki.ZRODLO_LRPFL))
         return kroki + self._kroki_dim(bool(cue))
 
     def kroki_rozmowy_do_zamkniecia(self, rozmowcy) -> list[Krok]:
@@ -1070,6 +1089,8 @@ class Rdzen:
         # Fader Start: dodatni fader dopiero po potwierdzonych zamknięciach.
         # Nawet niespójny zastany Main On nie może ominąć ciszy głośników.
         if fader_mikrofonu is not None:
+            if self._rozbrojone() or not self.kontroler_polaczony:
+                return WynikPrzejscia(False, "rozbrojony")
             if (self.widok.glosniki_wyciszone() is not True
                     or not self._ustaw_fader_mikrofonu(fader_mikrofonu)):
                 return WynikPrzejscia(False, "fader", utrata=not self.stan.polaczony)
@@ -1252,7 +1273,14 @@ class Rdzen:
             elif rodzaj == "kontroler_powrot":
                 self.powrot_kontrolera(str(z[1]) if len(z) > 1 else "")
         finally:
-            self._w_zdarzeniu = False
+            try:
+                # Końcowe uzgodnienie nadal należy do tego zdarzenia powierzchni.
+                # Dopiero po nim wracamy do kontekstu komend programowych.
+                if not (rodzaj == "klawisz" and len(z) > 1 and z[1] in KLAWISZE_BEZ_MIKSERA):
+                    if not self.odsluch_aux.uzgodnij():
+                        self.powiedz(self.t("odsluch_niepotwierdzony"), Priorytet.BEZPIECZENSTWO, "aux34")
+            finally:
+                self._w_zdarzeniu = False
             self._aktualizuj_liczniki()
             self._odswiez_powierzchnie()
 
@@ -2430,6 +2458,7 @@ class Rdzen:
     # odsłuch
     # ======================================================================
     def sluchaj_programu(self) -> None:
+        self.odsluch_aux.program_lr = True
         kroki = [k for zr in self.u.zrodla for k in self.kroki_pfl(zr, False)] + self.kroki_solo_lr(False)
         w = self._zamknij(kroki + [Krok(sciezki.MONITOR_ZRODLO, sciezki.ZRODLO_LR)] + self._kroki_dim(False))
         self.powiedz(self.t("sluchasz_programu") if w.ok else self.t("synchronizacja_brak"), Priorytet.STAN, "odsluch")
@@ -2447,6 +2476,9 @@ class Rdzen:
 
     def _muzyka_w_sluchawkach_przy_cue(self, zr: str) -> None:
         """Muzyka weszła na antenę albo zeszła w trakcie rozmowy: PFL za nią."""
+        from .odsluch import aktywny
+        if aktywny(self.u):
+            return
         if not self.u.zachowanie.get("program_w_sluchawkach_przy_cue", True):
             return
         s = self.widok.suma(zr)
@@ -2460,6 +2492,11 @@ class Rdzen:
 
     def koniec_pfl(self) -> None:
         kroki = [k for zr in self.u.zrodla for k in self.kroki_pfl(zr, False)] + self.kroki_solo_lr(False)
+        from .odsluch import aktywny
+        if aktywny(self.u):
+            self.odsluch_aux.program_lr = False
+            cue = self.widok.cue_zbior()
+            kroki.append(Krok(sciezki.MONITOR_ZRODLO, sciezki.ZRODLO_OFF if cue is not NIEZNANY and cue else sciezki.ZRODLO_LR))
         w = self._zamknij(kroki + self._kroki_dim(False))
         if w.ok:
             self.powiedz(self.t("koniec_pfl"), Priorytet.STAN, "odsluch", dzwiek=True)
@@ -2646,12 +2683,20 @@ class Rdzen:
         f = opis_fadera(self.u, self.widok.fader_db(MIKROFON), self.u.zrodla[MIKROFON].suwak_maks_db)
         return tekst if not f or tekst.endswith(f) else tekst + ", " + f
 
+    @staticmethod
+    def _koduj_fader_mikrofonu(wartosc: float) -> float:
+        # Schemat: 1023 odstępy. Log MR18: 16/16383 wraca jako zero.
+        # Dodatni zamiar kodujemy co najmniej pierwszym niezerowym poziomem
+        # (około -89,53 dB), z zapasem na float32 OSC. Zero zostaje zerem.
+        return max(wartosc, 1.0 / 1023 + 1e-7) if wartosc > 0 else wartosc
+
     def _ustaw_fader_mikrofonu(self, wartosc: float) -> bool:
         """DSP działa także pod ręką, silnik nigdy z nią nie walczy.
 
         Zero i pierwszy krok rozróżniamy dokładnie, bez tolerancji 0,005
         klienta OSC. Niepotwierdzonej pozycji nie ogłaszamy jako anteny.
         """
+        wartosc = self._koduj_fader_mikrofonu(wartosc)
         pasek = self._pasek_zrodla(MIKROFON)
         if pasek is not None:
             self._suwak_ruch.pop(pasek, None)
@@ -2663,6 +2708,7 @@ class Rdzen:
             for a in adresy:
                 ok = self._zapis(Krok(a, wartosc)) and ok
             dane = self.klient.odczytaj_wiele(adresy)
+            ok = ok and all(a in dane for a in adresy)  # MIKROFON_PELNY_ODCZYT
             for a, v in dane.items():
                 self.stan.potwierdz(a, v, self.zegar())
                 ok = ok and zgodne(v, wartosc) and ((float(v) > 0) == (wartosc > 0))
@@ -2720,6 +2766,33 @@ class Rdzen:
             return ZERO_DB
         return poziom_db_na_float(self.u.zrodla[zr].suwak_maks_db)
 
+    def _odczytaj_suwak_rozmowcy(self, zr, przed, byl_w_gorze, oczekiwany=None) -> None:
+        """Odczyt całej pary przed decyzją. Regulacja nie powtarza przejścia."""
+        adresy = [sciezki.fader(k) for k in self.u.zrodla[zr].kanaly]
+        try:
+            dane = self.klient.odczytaj_wiele(adresy)
+        except BrakOdpowiedzi:
+            self._utrata("brak odpowiedzi po ruchu suwaka")
+            return
+        if any(a not in dane for a in adresy):
+            self._utrata("brak odpowiedzi po ruchu suwaka")
+            return
+        for a, v in dane.items():
+            self.stan.potwierdz(a, v, self.zegar())
+        # Sama tolerancja 0,005 uznaje zero za zgodne z pierwszym krokiem.
+        if oczekiwany is not None and any(
+                a not in dane or not zgodne(dane[a], oczekiwany)
+                or (dane[a] > 0) != (oczekiwany > 0) for a in adresy):
+            return
+        self._zapewnij_swiezosc()
+        po_w_gorze = self.widok.suwak_w_gorze(zr)
+        if (not self._gotowy() or self._rozbrojone() or po_w_gorze is NIEZNANY
+                or self.widok.para_rozbiezna(zr)):
+            return
+        if po_w_gorze != byl_w_gorze:
+            self._po_zmianie_suwaka(zr, przed, byl_w_gorze)
+        self._ustaw_silniki()
+
     def ruch_suwaka(self, pasek: int, pozycja: float) -> None:
         """Suwak zawsze czynny; góra = suwak_maks_db źródła (domyślnie 0 dB,
         poziom ze sceny), dół = minus nieskończoność."""
@@ -2727,6 +2800,7 @@ class Rdzen:
             return
         pozycja = min(max(pozycja, 0.0), 1.0)
         wartosc = pozycja * self._gora_suwaka(pasek)
+        zmiana_rozmowcy = None
         if pasek == 9:
             adresy = [sciezki.MONITOR_POZIOM]
         else:
@@ -2739,18 +2813,31 @@ class Rdzen:
                     self.powiedz(self.t("pary_rozbiezne", nazwa=self._nazwa(zr)), Priorytet.STAN, "suwak")
                 return
             adresy = [sciezki.fader(k) for k in self.u.zrodla[zr].kanaly]
+            if zr in self._rozmowcy():
+                byl_w_gorze = self.widok.suwak_w_gorze(zr)
+                if byl_w_gorze is NIEZNANY:
+                    return
+                if (wartosc > 0) != byl_w_gorze:
+                    zmiana_rozmowcy = (zr, self.widok.stan_rozmowcy(zr), byl_w_gorze)
             if zr == MIKROFON:
+                wartosc = self._koduj_fader_mikrofonu(wartosc)
                 self._mikrofon_suwak_cel = wartosc
                 self._suwak_ruch[pasek] = self.zegar()
-                if wartosc > 0 and (self.widok.suma(MIKROFON) is not True
-                                    or self.widok.suwak_na_dole(MIKROFON) is not False):
-                    # Ręka podaje zamiar. Dodatni fader nie może wyprzedzić
-                    # zamknięcia CUE i głośników przy niespójnym Main On.
+                if wartosc == 0.0 or (wartosc > 0 and (
+                        self.widok.suma(MIKROFON) is not True
+                        or self.widok.suwak_na_dole(MIKROFON) is not False)):
+                    # Przejście nie czeka na bezruch ręki. Wspólna droga nadal
+                    # potwierdza zamknięcia CUE i głośników przed anteną.
+                    # Zwłoka pozostaje tylko dla końcowego odczytu regulacji.
+                    self._z_hold_mikrofonu(self._potwierdz_suwak_mikrofonu)
                     return
         for a in adresy:
             self.zapora.sprawdz(a, wartosc, self.widok)
             self.klient.wyslij(a, wartosc)
         self._suwak_ruch[pasek] = self.zegar()
+        if zmiana_rozmowcy is not None:
+            # Zmiana stanu od pierwszego zdarzenia; końcowy poziom po bezruchu.
+            self._odczytaj_suwak_rozmowcy(*zmiana_rozmowcy, oczekiwany=wartosc)
 
     def _potwierdz_suwaki(self, teraz: float) -> None:
         """Po zatrzymaniu suwaka odczyt potwierdzający (bez komentarza NVDA),
@@ -2767,15 +2854,16 @@ class Rdzen:
                     self._mikrofon_suwak_cel = None
                 self._ustaw_silniki()
                 continue
+            if zr in self._rozmowcy():
+                self._odczytaj_suwak_rozmowcy(
+                    zr, self.widok.stan_rozmowcy(zr), self.widok.suwak_w_gorze(zr))
+                self._suwak_ruch.pop(pasek, None)
+                continue
             del self._suwak_ruch[pasek]
             if pasek == 9:
                 adresy = [sciezki.MONITOR_POZIOM]
             else:
                 adresy = [sciezki.fader(k) for k in self.u.zrodla[zr].kanaly]
-            przed = self.widok.stan_rozmowcy(zr) if zr in self._rozmowcy() else None
-            # Ostatni potwierdzony odczyt suwaka sprzed ruchu ręki (ruch idzie
-            # bez potwierdzenia, a odczyt okresowy pomija suwaki w ręku).
-            byl_w_gorze = self.widok.suwak_w_gorze(zr) if zr in self._rozmowcy() else None
             try:
                 dane = self.klient.odczytaj_wiele(adresy)
             except BrakOdpowiedzi:
@@ -2783,17 +2871,6 @@ class Rdzen:
                 return
             for a, v in dane.items():
                 self.stan.potwierdz(a, v, teraz)
-            if zr in self._rozmowcy() or zr == MIKROFON:
-                # Decyzja i komunikat po suwaku wymagają świeżego odczytu torów
-                # krytycznych (L02). Odczyt okresowy idzie co 5 s, więc bez tego
-                # komunikat przepadał (Michał, 22.10.2026: brak dźwięku przy
-                # szybkich ruchach suwaka). Suwak jest już potwierdzony wyżej,
-                # więc ten odczyt nie ogłosi go jako zmiany z innego urządzenia.
-                self._zapewnij_swiezosc()
-                if not self.stan.polaczony:
-                    return
-            if zr in self._rozmowcy():
-                self._po_zmianie_suwaka(zr, przed, byl_w_gorze)
             # Suwak na stole stoi tam, gdzie mikser potwierdził (puszczony suwak;
             # dotknięty pomija _ustaw_silniki).
             self._ustaw_silniki()
@@ -2962,6 +3039,7 @@ class Rdzen:
             self._aktualizuj_liczniki()
             self._przypomnienia(teraz)
             self._alarm_ciszy(teraz)
+            self.odsluch_aux.uzgodnij()
         self._odswiez_powierzchnie()
 
     def _suwaki_w_rekach(self) -> set[str]:

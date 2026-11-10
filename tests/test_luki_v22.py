@@ -336,7 +336,7 @@ class TestP03StatusKrotki(TestZSymulatorem):
         self.slowa()
         self.klawisz("F2_status")
         tekst = self.slowa()[0]
-        self.assertEqual(tekst, "Mikrofon wyłączony. Słuchacz czeka. Zoom na antenie. Głośniki włączone.")
+        self.assertEqual(tekst, "Mikrofon wyłączony. Słuchacz czeka. Zoom na antenie od 1 sekundy. Głośniki włączone.")
         self.nacisnij("galka_wcisnij", 3)
         self.assertIn("suwak", self.slowa()[0], "poziom podaje gałka paska")
 

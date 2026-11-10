@@ -279,7 +279,9 @@ class TestStatus(TestZSymulatorem):
         self.cue("telefon")
         self.slowa()
         self.klawisz("F2_status")
-        self.assertEqual(self.slowa(), ["Mikrofon wyłączony. Słuchacz w rozmowie poza anteną. Zoom na antenie. "
+        # Wejście od pierwszego ruchu, a nie po bezruchu: po obu operacjach
+        # upłynęła już pierwsza sekunda rzeczywistego czasu antenowego.
+        self.assertEqual(self.slowa(), ["Mikrofon wyłączony. Słuchacz w rozmowie poza anteną. Zoom na antenie od 1 sekundy. "
                                         "Głośniki wyciszone."])
 
     def test_f8_powierzchnia(self):

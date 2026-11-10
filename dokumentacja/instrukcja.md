@@ -19,7 +19,7 @@ Co robią przyciski i suwak:
 1. SELECT przy czekającym rozmówcy: rozmowa poza anteną.
 2. Drugie SELECT: rozmówca wraca do oczekiwania i słyszy antenę.
 3. Podniesienie suwaka czekającego rozmówcy: wejście na antenę. Ściągnięcie suwaka na dół: znowu czeka.
-4. Podniesienie suwaka rozmówcy, który ma CUE: koniec jego CUE i wejście na antenę, jak „Auto CUE Reset by FADER” w konsoletach D&R. Mostek najpierw zamyka drogi rozmowy do jego powrotu (mikrofon i uczestników przed suwakiem), potem włącza mu powrót programu, a na końcu Main On. Inni uczestnicy CUE zostają w rozmowie poza anteną. NVDA: „Słuchacz na antenie” albo „Zoom na antenie”. F1 albo SELECT mikrofonu może zakończyć również pozostałe CUE i włączyć mikrofon na antenę. Liczy się podniesienie suwaka z dołu: suwak poniżej progu minus 50 dB nie kończy CUE.
+4. Podniesienie suwaka rozmówcy, który ma CUE: koniec jego CUE i wejście na antenę, jak „Auto CUE Reset by FADER” w konsoletach D&R. Mostek najpierw zamyka drogi rozmowy do jego powrotu (mikrofon i uczestników przed suwakiem), potem włącza mu powrót programu, a na końcu Main On. Inni uczestnicy CUE zostają w rozmowie poza anteną. NVDA: „Słuchacz na antenie” albo „Zoom na antenie”. F1 albo SELECT mikrofonu może zakończyć również pozostałe CUE i włączyć mikrofon na antenę. Liczy się podniesienie suwaka z dołu: każdy krok powyżej samego dołu kończy CUE, bez progu minus 50 dB.
 5. SELECT przy rozmówcy na antenie: mostek najpierw zdejmuje go z sumy i sprawdza to odczytem, potem silnik ściąga suwak. Rozmówca dołącza do rozmowy poza anteną. Po zwolnieniu CUE czeka; na antenę wraca dopiero ponownym podniesieniem suwaka.
 6. Gdy trzymasz suwak ręką i silnik nie może go ściągnąć, kanał zostaje poza sumą. NVDA mówi wtedy „Suwak trzymany, kanał poza sumą do ściągnięcia suwaka”. Ruch trzymanego suwaka w górze nie kończy CUE. Dopiero zejście suwaka na dół i ponowne podniesienie wpuszcza rozmówcę na antenę.
 7. SELECT przy obu rozmówcach: rozmowa we troje poza anteną.
@@ -193,7 +193,7 @@ Mostek mówi stan odczytany z miksera, nigdy stan, który dopiero wysłał. Najw
 
 ## Mapa stołu
 
-Suwaki: 1 mikrofon (kanał 9), 2 telefon (10), 3 Zoom (7/8), 4 do 6 muzyka 1 do 3 (pary 1/2, 3/4, 5/6), 7 i 8 wolne, MASTER słuchawki (PHONES). Suwak w górze to 0 dB, czyli poziom ze sceny, na dole minus nieskończoność. Wyjątek: suwak mikrofonu sięga plus 10 dB, a 0 dB ma w trzech czwartych drogi (decyzja Michała z 21.10.2026, `zrodla.mikrofon.suwak_maks_db`). Suwak mikrofonu steruje anteną od pierwszego kroku nad samym dołem; pozostałe jego ruchy to głośność. Ruch silnika nie jest brany za ruch ręki: pozycja liczy się tylko przy dotkniętym suwaku. Rozmówca jest „na antenie”, gdy jego suwak jest powyżej minus 50 dB (próg w pliku ustawień).
+Suwaki: 1 mikrofon (kanał 9), 2 telefon (10), 3 Zoom (7/8), 4 do 6 muzyka 1 do 3 (pary 1/2, 3/4, 5/6), 7 i 8 wolne, MASTER słuchawki (PHONES). Suwak w górze to 0 dB, czyli poziom ze sceny, na dole minus nieskończoność. Wyjątek: suwak mikrofonu sięga plus 10 dB, a 0 dB ma w trzech czwartych drogi (decyzja Michała z 21.10.2026, `zrodla.mikrofon.suwak_maks_db`). Suwak mikrofonu steruje anteną od pierwszego kroku nad samym dołem; pozostałe jego ruchy to głośność. Ruch silnika nie jest brany za ruch ręki: pozycja liczy się tylko przy dotkniętym suwaku. Rozmówca jest „na antenie” już od pierwszego kroku powyżej samego dołu, bez progu minus 50 dB; ten próg dotyczy tylko muzyki (wartość w pliku ustawień).
 
 Przyciski paska:
 

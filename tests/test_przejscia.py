@@ -293,12 +293,23 @@ class TestSuwakRozmowcy(TestZSymulatorem):
         self.ruch("telefon", 1.0)
         self.assertEqual(self.antena(), {"muzyka", "telefon"})
 
-    def test_prog_suwaka_z_pliku_ustawien(self):
+    def test_prog_z_pliku_nie_opoznia_rozmowcow(self):
         self.u.zachowanie["prog_suwaka_na_antenie_db"] = -20.0
-        # Poziom około -36 dB: powyżej -50, ale poniżej progu -20 z ustawień.
-        self.ruch("telefon", 0.2)
-        self.assertEqual(self.r.widok.stan_rozmowcy("telefon"), "czeka")
-        self.assertNotIn("telefon", self.slyszy("zoom"), "poniżej progu powrót nie bierze telefonu")
+        # Poziom około -36 dB: poniżej progu -20 z ustawień. Nowy kontrakt
+        # obu rozmówców to >0, więc próg nie blokuje anteny ani powrotów.
+        for zr, drugi in (("telefon", "zoom"), ("zoom", "telefon")):
+            with self.subTest(zr=zr):
+                self.ruch(zr, 0.2)
+                self.assertEqual(self.r.widok.stan_rozmowcy(zr), "antena")
+                self.assertIn(zr, self.slyszy(drugi), "powrót bierze rozmówcę od dołu")
+                self.ruch(zr, 0.0)
+                self.assertEqual(self.r.widok.stan_rozmowcy(zr), "czeka")
+                self.assertNotIn(zr, self.slyszy(drugi))
+        # Dotychczasowy próg innych źródeł nadal obowiązuje.
+        self.ruch("muzyka1", 0.2)
+        self.assertIs(self.r.widok.suwak_w_gorze("muzyka1"), False)
+        self.ruch("muzyka1", 0.9)
+        self.assertIs(self.r.widok.suwak_w_gorze("muzyka1"), True)
 
     def test_suwaki_muzyki_zawsze_czynne_i_fade_u_rozmowcy(self):
         self.nacisnij("dotyk", 4, True)

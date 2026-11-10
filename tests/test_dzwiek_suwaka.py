@@ -55,10 +55,12 @@ class TestDzwiekPrzySzybkimSuwaku(TestZSymulatorem):
         z 26.10.2026: mediana 0 ms, 90% 16 ms), symulator odpowiada od razu."""
         p = self.pasek(zr)
         self.nacisnij("dotyk", p, True)
-        self.nacisnij("suwak", p, cel)
+        # Od 09.11 decyzja zapada już w zdarzeniu pierwszego ruchu, nie
+        # w późniejszym ticku. Wiek ustawiamy przed rzeczywistą decyzją.
+        self.r._ost_swiezy = self.zegar() - wiek
+        self.r.obsluz(("suwak", p, cel))
         self.nacisnij("dotyk", p, False)
         self.zegar.przesun(self.r.zwloka_suwaka + 0.05)
-        self.r._ost_swiezy = self.zegar() - wiek
         self.r.tick()
         return self.slowa()
 

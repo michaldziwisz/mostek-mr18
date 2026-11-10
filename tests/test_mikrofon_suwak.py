@@ -299,9 +299,12 @@ class TestMikrofonSuwak(TestZSymulatorem):
         self.assertIn("z innego urządzenia", " ".join(self.slowa()))
 
     def test_powrot_lacznosci_nie_wykonuje_zaleglego_podniesienia(self):
+        # Utrata w pierwszym przejściu, nie po zakończonym już otwarciu.
+        self.sym.awarie.rozlacz_po_zapisach = 1
         self.nacisnij("suwak", 1, 0.8)
-        self.sym.awarie.rozlaczony = True
+        self.assertFalse(self.r.stan.polaczony)
         self.tick(0.6)
+        self.sym.awarie.rozlacz_po_zapisach = 0
         self.sym.awarie.rozlaczony = False
         od = len(self.sym.dziennik)
         self.tick(1.5)

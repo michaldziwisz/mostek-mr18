@@ -226,6 +226,12 @@ def sprawdz_informacje(u: Ustawienia) -> None:
 
 def sprawdz(u: Ustawienia) -> None:
     """Kontrola spójności pliku ustawień z niezmiennikami planu."""
+    tryb = u.zachowanie.get("tryb_odsluchu", "dotychczasowy")
+    if tryb not in ("dotychczasowy", "aux34_mono"):
+        raise BladUstawien("nieznany zachowanie.tryb_odsluchu")
+    if tryb == "aux34_mono" and ({k for z in u.zrodla.values() for k in z.kanaly} != set(range(1, 11))
+                               or u.zrodla["mikrofon"].kanaly != (9,)):
+        raise BladUstawien("aux34_mono wymaga układu kanałów 1–10 z mikrofonem 9")
     for wymagane in ("mikrofon", "telefon", "zoom"):
         if wymagane not in u.zrodla:
             raise BladUstawien(f"brak źródła {wymagane!r}")

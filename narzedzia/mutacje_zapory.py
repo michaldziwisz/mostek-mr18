@@ -56,6 +56,90 @@ POWROT = {"tap_wartosci": "False", "tap_przy_otwartej": "False", "glosniki_przy_
 # nazwa: (plik względem katalogu mostka, tekst oryginalny, tekst mutanta, test).
 # Moduł testów w trybie szybkim: MODUL_TESTU (domyślnie test_niezmienniki).
 MUTANTY_POPRAWEK = {
+    'suwak_natychmiast_cofniety_do_bezruchu': (
+        'mostek/rdzen.py',
+        '                    # Zwłoka pozostaje tylko dla końcowego odczytu regulacji.\n'
+        '                    self._z_hold_mikrofonu(self._potwierdz_suwak_mikrofonu)',
+        '                    pass  # MUTANT: przejście dopiero po bezruchu',
+        'test_ciagly_ruch_otwiera_od_pierwszego_zdarzenia'),
+    'suwak_natychmiast_fader_po_utracie_kontrolera': (
+        'mostek/rdzen.py',
+        '            if self._rozbrojone() or not self.kontroler_polaczony:\n'
+        '                return WynikPrzejscia(False, "rozbrojony")\n'
+        '            if (self.widok.glosniki_wyciszone() is not True',
+        '            if (self.widok.glosniki_wyciszone() is not True',
+        'test_utrata_kontrolera_w_trakcie_zamkniec'),
+    'aux34_profil_przepuszcza_nan': (
+        'mostek/odsluch.py', 'not isfinite(liczba) or ', '',
+        'test_niefinitywny_master_nie_uprawnia_do_otwarcia'),
+    'aux34_rozbrojenie_nie_chroni_solo': (
+        'mostek/rdzen.py', "and krok.adres.startswith('/-stat/solosw/') and krok.wartosc == 1):",
+        "and False):", 'test_zamknij_nie_omija_rozbrojenia_solo_ale_pozwala_zamknac'),
+    'aux34_koncowe_uzgodnij_gubi_kontekst': (
+        'mostek/rdzen.py', '# Końcowe uzgodnienie nadal należy do tego zdarzenia powierzchni.',
+        'self._w_zdarzeniu = False',
+        'test_koncowe_uzgodnij_pozostaje_zdarzeniem_rozbrojonej_powierzchni'),
+    'aux34_migracja_normalizuje_sprzeczne_duplikaty': (
+        'narzedzia/migracja_aux34.py',
+        'if any(args != wystapienia[0][1] for _, args in wystapienia[1:]):',
+        'if False:', 'test_migracja_ogolna_odmawia_sprzecznych_duplikatow_bez_wrappera'),
+    'aux34_muzyka_glosniej_o_3db': (
+        'mostek/odsluch.py', '-6.0 if not z.glos else 0.0',
+        '-3.0 if not z.glos else 0.0', 'test_poziomy_send3_bez_zmiany_trymu'),
+    'aux34_glosy_ciszej_o_6db': (
+        'mostek/odsluch.py', '-6.0 if not z.glos else 0.0',
+        '-6.0', 'test_poziomy_send3_bez_zmiany_trymu'),
+    'aux34_talkback_udaje_cue': (
+        'mostek/odsluch.py',
+        's.ZRODLO_OFF if jest_cue and not self.program_lr else s.ZRODLO_LR',
+        's.ZRODLO_OFF if (jest_cue or r._talkback) and not self.program_lr else s.ZRODLO_LR',
+        'test_sam_talkback_nie_otwiera_aux_i_wraca_stereo'),
+    'aux34_staly_aux_bez_cue': (
+        'mostek/odsluch.py',
+        'cue is not NIEZNANY and bool(cue)\n                  and w.stan.polaczony and w.stan.zsynchronizowany and zgodny(w)\n                  and w.monitor() == s.ZRODLO_OFF',
+        'w.stan.polaczony and w.stan.zsynchronizowany and zgodny(w)',
+        'test_stereo_spoczynek_antena_koniec_cue'),
+    'aux34_brak_stereo_phones': (
+        'mostek/odsluch.py',
+        's.ZRODLO_OFF if jest_cue and not self.program_lr else s.ZRODLO_LR',
+        's.ZRODLO_OFF', 'test_stereo_spoczynek_antena_koniec_cue'),
+    'aux34_brak_powrotu_po_obcym_cue': (
+        'mostek/odsluch.py', 'self.talkback_auto.update(self.cue_przed - cue)',
+        'pass', 'test_obcy_koniec_cue_przywraca_stereo_bez_solo'),
+    'aux34_master_przywraca_0db': (
+        'mostek/odsluch.py', 'MASTER_FADER: poziom_db_na_float(-30)',
+        'MASTER_FADER: poziom_db_na_float(0)', 'test_master_minus30_jest_wiazacy'),
+    'aux34_master_ignoruje_niezgodnosc': (
+        'mostek/odsluch.py', 'if not isfinite(liczba) or abs(float(x) - v) > 0.005:',
+        'if a != MASTER_FADER and (not isfinite(liczba) or abs(float(x) - v) > 0.005):',
+        'test_zly_master_blokuje_i_nie_jest_naprawiany'),
+    'aux34_master_bez_tolerancji_kwantyzacji': (
+        'mostek/odsluch.py', 'abs(float(x) - v) > 0.005',
+        'abs(float(x) - v) > 0.000001', 'test_master_sprzetowo_skwantyzowany_jest_zgodny'),
+    'aux34_mikrofon_w_send': (
+        'mostek/odsluch.py', 'z.klucz != "mikrofon"', 'True',
+        'test_cel_mikrofon_bez_solo_nadal_zero'),
+    'aux34_koniec_pfl_gubi_cue': (
+        'mostek/odsluch.py', 'zr in r._talkback or (cue is not NIEZNANY and zr in cue)',
+        'zr in r._talkback', 'test_program_i_koniec_pfl_przy_trwajacym_cue'),
+    'aux34_brak_potwierdzenia_glosu': (
+        'mostek/odsluch.py', 'if not r._zamknij([Krok(a, 1)]).ok:',
+        'if False:', 'test_niepotwierdzony_wlasny_glos_nie_udaje_sukcesu'),
+    'aux34_ignoruje_main_off': (
+        'mostek/odsluch.py', 'w.suma(z.klucz) is True', 'True',
+        'test_main_off_zamyka_nawet_z_faderem'),
+    'aux34_dubluje_pfl': (
+        'mostek/odsluch.py', 'w.pfl(z.klucz) is False', 'True',
+        'test_pfl_muzyki_break_before_make'),
+    'aux34_dubluje_program_lr': (
+        'mostek/odsluch.py', 'w.monitor() == s.ZRODLO_OFF', 'True',
+        'test_program_lr_bez_drugiej_kopii_i_powrot'),
+    'aux34_brak_break_before_make': (
+        'mostek/odsluch.py', 'return self.r._zamknij(kroki).ok', 'return True',
+        'test_pfl_muzyki_break_before_make'),
+    'aux34_zapora_wylaczona': (
+        'mostek/logika.py', 'odsluch.aktywny(self.u) and odsluch.narusza(widok, adres, wartosc)', 'False',
+        'test_zapora_mikrofon_rezerwa_obcy_fx_i_pre'),
     'mikrofon_suwak_zostawia_cue': (
         'mostek/rdzen.py',
         '            self._wlacz_mikrofon(fader=wartosc)',
@@ -450,7 +534,75 @@ MUTANTY_POPRAWEK = {
         "                    cw.poziom = chwilowy[a]",
         "test_muzyka_wchodzi_i_schodzi_z_anteny_w_trakcie"),
 }
+# Każda usterka osobno dla telefonu i Zooma, bez zmiany źródeł na dysku.
+for _zr in ('telefon', 'zoom'):
+    MUTANTY_POPRAWEK['rozmowca_' + _zr + '_surowy_main_przed_prywatnymi'] = (
+        'mostek/rdzen.py',
+        '        nowe = cue - {r}\n'
+        '        w = self._wykonaj_przejscie(self.cel(nowe, mik is True, cue_przed=cue, na_antene={r}))',
+        f'        if r == {_zr!r}:\n'
+        '            for a in self.widok.adresy_sumy(r):\n'
+        '                self.klient.wyslij(a, 1)\n'
+        '            return  # MUTANT: pominięte zamknięcia i zapora\n'
+        '        nowe = cue - {r}\n'
+        '        w = self._wykonaj_przejscie(self.cel(nowe, mik is True, cue_przed=cue, na_antene={r}))',
+        'test_odmowa_zamkniec_nie_otwiera_main')
+    MUTANTY_POPRAWEK['rozmowca_' + _zr + '_dawny_prog'] = (
+        'mostek/logika.py',
+        '        if self.u.zrodla[zr].odbiorca is not None:\n            wart =',
+        f'        if self.u.zrodla[zr].odbiorca is not None and zr != {_zr!r}:\n            wart =',
+        'test_pierwszy_krok_i_dol_bez_dotyku')
+    MUTANTY_POPRAWEK['rozmowca_' + _zr + '_udawany_odczyt_fadera'] = (
+        'mostek/rdzen.py',
+        '        for a, v in dane.items():\n'
+        '            self.stan.potwierdz(a, v, self.zegar())\n'
+        '        # Sama tolerancja 0,005',
+        f'        if zr == {_zr!r} and oczekiwany is not None:\n'
+        '            dane = {a: oczekiwany for a in adresy}\n'
+        '        for a, v in dane.items():\n'
+        '            self.stan.potwierdz(a, v, self.zegar())\n'
+        '        # Sama tolerancja 0,005',
+        'test_odmowa_fadera_dodatniego_nie_otwiera')
+
+MUTANTY_POPRAWEK.update({
+    'kwantyzacja_bez_minimum': (
+        'mostek/rdzen.py',
+        'return max(wartosc, 1.0 / 1023 + 1e-7) if wartosc > 0 else wartosc',
+        'return wartosc', 'test_dodatni_zamiar_od_pierwszego_kroku'),
+    'kwantyzacja_bez_zapasu_float32': (
+        'mostek/rdzen.py', '1.0 / 1023 + 1e-7', '1.0 / 1023',
+        'test_zapas_float32_i_brak_istotnego_podbicia'),
+    'kwantyzacja_zero_podniesione': (
+        'mostek/rdzen.py',
+        'return max(wartosc, 1.0 / 1023 + 1e-7) if wartosc > 0 else wartosc',
+        'return max(wartosc, 1.0 / 1023 + 1e-7)',
+        'test_szybki_dol_gora_kazde_zero_zamyka'),
+    'kwantyzacja_bez_kodowania_zapisu': (
+        'mostek/rdzen.py',
+        '        wartosc = self._koduj_fader_mikrofonu(wartosc)\n        pasek = self._pasek_zrodla(MIKROFON)',
+        '        pasek = self._pasek_zrodla(MIKROFON)',
+        'test_bezposredni_zapis_takze_koduje'),
+    'kwantyzacja_bez_kodowania_regulacji': (
+        'mostek/rdzen.py',
+        '                wartosc = self._koduj_fader_mikrofonu(wartosc)\n                self._mikrofon_suwak_cel = wartosc',
+        '                self._mikrofon_suwak_cel = wartosc',
+        'test_regulacja_do_minimum_nie_zamyka_i_nie_wznawia'),
+    'kwantyzacja_pusty_odczyt_sukces': (
+        'mostek/rdzen.py',
+        '            ok = ok and all(a in dane for a in adresy)  # MIKROFON_PELNY_ODCZYT',
+        '            pass  # MUTANT: pusty słownik udaje potwierdzenie',
+        'test_pusty_odczyt_fadera_nie_potwierdza'),
+})
+
 MODUL_TESTU = {n: "test_przelaczniki" for n in MUTANTY_POPRAWEK if n.startswith("mute_act")}
+MODUL_TESTU.update({n: 'test_kwantyzacja_mikrofonu' for n in MUTANTY_POPRAWEK if n.startswith('kwantyzacja_')})
+MODUL_TESTU.update({n: 'test_odsluch_aux34' for n in MUTANTY_POPRAWEK if n.startswith('aux34_')})
+MODUL_TESTU.update({n: 'test_kontrakt_cue' for n in (
+    'aux34_talkback_udaje_cue', 'aux34_staly_aux_bez_cue',
+    'aux34_brak_stereo_phones', 'aux34_brak_powrotu_po_obcym_cue')})
+MODUL_TESTU.update({n: 'test_bezpieczenstwo_aux34' for n in (
+    'aux34_profil_przepuszcza_nan', 'aux34_rozbrojenie_nie_chroni_solo',
+    'aux34_koncowe_uzgodnij_gubi_kontekst', 'aux34_migracja_normalizuje_sprzeczne_duplikaty')})
 MODUL_TESTU.update({n: "test_kaszel_solo" for n in MUTANTY_POPRAWEK if n.startswith("kaszel_solo_")})
 MODUL_TESTU.update({n: "test_talkback_glosniki" for n in MUTANTY_POPRAWEK if n.startswith("talkback_glosniki_")})
 # Talkback: poziom jak w CUE i przyciszona muzyka u adresata (26.10.2026).
@@ -466,6 +618,10 @@ MODUL_TESTU.update({n: "test_tryby_dzwiekow" for n in MUTANTY_POPRAWEK if n.star
 MODUL_TESTU["tryb_blad_dzwieku_bez_mowy"] = "test_dzwieki_naraz"
 MODUL_TESTU["suwak_zapas_swiezosci"] = "test_dzwiek_suwaka"
 MODUL_TESTU.update({n: "test_mikrofon_suwak" for n in MUTANTY_POPRAWEK if n.startswith("mikrofon_")})
+MODUL_TESTU.update({n: "test_reakcja_suwaka" for n in MUTANTY_POPRAWEK if n.startswith("suwak_natychmiast_")})
+MODUL_TESTU.update({n: 'test_reakcja_suwaka_rozmowcow.' + (
+    'TestTelefon' if n.startswith('rozmowca_telefon_') else 'TestZoom')
+    for n in MUTANTY_POPRAWEK if n.startswith('rozmowca_')})
 
 
 def mutuj(zrodlo: str, regula: str) -> str:
@@ -508,7 +664,9 @@ def zbadaj(pelne: bool = False) -> dict:
     raport = {"pelne": pelne, "reguly": {}}
     with tempfile.TemporaryDirectory(prefix="mostek-mutacje-") as tmp:
         kopia = Path(tmp) / "mostek"
-        shutil.copytree(KATALOG, kopia, ignore=shutil.ignore_patterns(".git", "__pycache__", "dziennik"))
+        shutil.copytree(KATALOG, kopia, ignore=shutil.ignore_patterns(".git", "__pycache__", "dziennik", "_koordynacja"))
+        # Fixture osobistej BAZY leżą w tests/dane_aux34, więc kopiowanie
+        # katalogu repo już je obejmuje; parser sceny jest w narzedzia/.
         kod, wyj = uruchom(kopia, pelne)
         raport["oryginal_ok"] = kod == 0
         raport["zlozone"] = {z: {} for z in REGULY_ZLOZONE}

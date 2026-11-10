@@ -381,6 +381,7 @@ SCHEMAT = obiekt({
         'maks_limit_rundy_s': liczba(0, domyslne=3.0),
     }, wymagane=True),
     'zachowanie': obiekt({
+        'tryb_odsluchu': tekst(wartosci=('dotychczasowy', 'aux34_mono'), domyslne='dotychczasowy'),
         'prog_suwaka_na_antenie_db': liczba(-90, 10, domyslne=-50.0),
         # Stary loader stosuje -abs; dodatnia wartość jest dopuszczalna.
         'przyciszenie_muzyki_cue_db': liczba(-60, 60, domyslne=-15.0),

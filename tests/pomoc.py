@@ -266,13 +266,13 @@ class TestZSymulatorem(unittest.TestCase):
 
     def na_antenie_klucz(self, zr: str) -> bool:
         """„Na antenie” w sensie planu: mikrofon to Main On (przełącznik), rozmówca
-        to Main On i suwak powyżej progu z ustawień (rozdz. 7)."""
+        to Main On i suwak powyżej zera (decyzja 09.11)."""
         k = self.u.zrodla[zr].kanaly
         if not all(self.m(sciezki.lr(x)) == 1 for x in k):
             return False
         if zr == "mikrofon":
             return True
-        prog = poziom_db_na_float(self.u.prog_suwaka_db)
+        prog = 0.0 if self.u.zrodla[zr].odbiorca is not None else poziom_db_na_float(self.u.prog_suwaka_db)
         return all(float(self.m(sciezki.fader(x))) > prog for x in k)
 
     def rozmowa_sluchacza(self) -> set:
